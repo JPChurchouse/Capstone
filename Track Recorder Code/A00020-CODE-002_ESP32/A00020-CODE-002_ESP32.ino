@@ -348,11 +348,11 @@ void loop()
     TotalDistanceTrackedInM = NumberOfPasses * SamplingDistanceInM;
     
     Serial.print( NumberOfPasses);
-    Serial.print( '\t' );
+    Serial.print( ',' );
     Serial.print( SamplingDistanceInM );
-    Serial.print( '\t' );
+    Serial.print( ',' );
     Serial.print( TotalDistanceTrackedInM );
-    Serial.print( '\t' );
+    Serial.print( ',' );
     Serial.print( String(x_Rotation) );
     Serial.println("");
 
