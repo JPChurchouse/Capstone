@@ -1,0 +1,55 @@
+21:39:32:721 -> Wifi scan started
+21:39:34:900 -> Wifi scan ended
+21:39:34:900 -> 3 networks found
+21:39:34:902 -> 1) ESPsoftAP_02-57dBm (86% ) <<***OPEN***>>
+21:39:34:910 -> 2) ESPsoftAP_01-72dBm (56% ) <<***OPEN***>>
+21:39:34:920 -> 3) Lodge Wireless Internet-54dBm (92% )
+21:39:34:929 -> 
+21:39:39:931 -> Wifi scan started
+21:39:42:110 -> Wifi scan ended
+21:39:42:110 -> 3 networks found
+21:39:42:113 -> 1) ESPsoftAP_02-56dBm (88% ) <<***OPEN***>>
+21:39:42:120 -> 2) ESPsoftAP_01-74dBm (52% ) <<***OPEN***>>
+21:39:42:130 -> 3) Lodge Wireless Internet-54dBm (92% )
+21:39:42:139 -> 
+21:39:47:141 -> Wifi scan started
+21:39:49:320 -> Wifi scan ended
+21:39:49:320 -> 3 networks found
+21:39:49:323 -> 1) ESPsoftAP_02-57dBm (86% ) <<***OPEN***>>
+21:39:49:330 -> 2) ESPsoftAP_01-74dBm (52% ) <<***OPEN***>>
+21:39:49:340 -> 3) Lodge Wireless Internet-55dBm (90% )
+21:39:49:349 -> 
+21:39:54:350 -> Wifi scan started
+21:39:56:529 -> Wifi scan ended
+21:39:56:529 -> 3 networks found
+21:39:56:531 -> 1) ESPsoftAP_02-55dBm (90% ) <<***OPEN***>>
+21:39:56:539 -> 2) ESPsoftAP_01-75dBm (50% ) <<***OPEN***>>
+21:39:56:549 -> 3) Lodge Wireless Internet-54dBm (92% )
+21:39:56:558 -> 
+21:40:01:559 -> Wifi scan started
+21:40:03:739 -> Wifi scan ended
+21:40:03:739 -> 2 networks found
+21:40:03:741 -> 1) ESPsoftAP_02-65dBm (70% ) <<***OPEN***>>
+21:40:03:749 -> 2) ESPsoftAP_01-75dBm (50% ) <<***OPEN***>>
+21:40:03:758 -> 
+21:40:08:759 -> Wifi scan started
+21:40:10:938 -> Wifi scan ended
+21:40:10:938 -> 3 networks found
+21:40:10:940 -> 1) ESPsoftAP_01-74dBm (52% ) <<***OPEN***>>
+21:40:10:948 -> 2) ESPsoftAP_02-59dBm (82% ) <<***OPEN***>>
+21:40:10:958 -> 3) Lodge Wireless Internet-54dBm (92% )
+21:40:10:967 -> 
+21:40:15:968 -> Wifi scan started
+21:40:18:147 -> Wifi scan ended
+21:40:18:147 -> 3 networks found
+21:40:18:150 -> 1) ESPsoftAP_01-75dBm (50% ) <<***OPEN***>>
+21:40:18:157 -> 2) ESPsoftAP_02-61dBm (78% ) <<***OPEN***>>
+21:40:18:168 -> 3) Lodge Wireless Internet-56dBm (88% )
+21:40:18:176 -> 
+21:40:23:178 -> Wifi scan started
+21:40:25:357 -> Wifi scan ended
+21:40:25:357 -> 3 networks found
+21:40:25:360 -> 1) ESPsoftAP_01-71dBm (58% ) <<***OPEN***>>
+21:40:25:367 -> 2) ESPsoftAP_02-57dBm (86% ) <<***OPEN***>>
+21:40:25:378 -> 3) Lodge Wireless Internet-53dBm (94% )
+21:40:25:386 -> 
