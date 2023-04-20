@@ -36,7 +36,7 @@ with open('Book1.csv', newline='') as f:
         #print(row) #-- print the row you just read
         t.right(float(row[3])-PrevAngle)
         PrevAngle = float(row[3])
-        t.forward(float(row[1])*30)
+        t.forward(float(row[1])*8)
 
 
 turtle.update() #-- unpause graphics updates
