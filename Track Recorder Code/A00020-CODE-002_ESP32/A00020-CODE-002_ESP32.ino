@@ -103,18 +103,14 @@
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 //######################################################################################################
-//---------------------------------------IR Distance Sensor Variables-----------------------------------
-    #define IR_DistanceSensorPin 0    //-- input pin for the IR distance sensor
-    int IR_DistanceSensorValue;       //-- an analogue value from 0-255
-    float IR_CalculatedDistance;      //-- the analogue IR_DistanceSensorValue converted to a cm distance
-    bool IR_Sensor_LedgeDetected = false;
-//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-//######################################################################################################
 //---------------------------------------Hall Effect Sensor Variables-----------------------------------
-    float SamplingDistanceInM = 0.2;
+    float SamplingDistanceInM = 0.0309839375;
     float TotalDistanceTrackedInM = 0;
     int NumberOfPasses;
+
+    //variables to keep track of the timing of recent interrupts
+    unsigned long HallEffect_time = 0;  
+    unsigned long last_HallEffect_time = 0; 
     
     struct HallEffectSensor
     {
@@ -127,8 +123,13 @@
     
     void IRAM_ATTR HallEffectISR()
     {
-      HalEftSns.counter++;
-      HalEftSns.pressed = true;
+      HallEffect_time = millis();
+      if (HallEffect_time - last_HallEffect_time > 100) //--  <- debounce delay in milliseconds
+      {
+        HalEftSns.counter++;
+        HalEftSns.pressed = true;
+        last_HallEffect_time = HallEffect_time;
+      }
     }
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -256,14 +257,6 @@
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 //######################################################################################################
-//----------------------------------------------Setup IR Distance Sensor -------------------------------
-    void Setup_IR_DistanceSensor()
-    {
-      pinMode(IR_DistanceSensorPin, OUTPUT);
-    }
-//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-//######################################################################################################
 //----------------------------------------------Setup Hall Effect Sensor -------------------------------
     void Setup_HallEffectSensor()
     {
@@ -283,8 +276,6 @@ void setup()
   Setup_Gyroscope();          //-- [Internal] The code does not work with the gyroscope setup.
   Serial.println("");         //-- end the "......>......" initilisation line
 
-  Setup_IR_DistanceSensor();  //-- [Internal]
-
   Setup_HallEffectSensor();   //-- [Internal]
 
   Setup_MotorDrive();         //-- [External] A LocalFolder library, Saved next to the .ino
@@ -303,25 +294,6 @@ void setup()
 
 
 //##################################################
-//-- Battery variables -----------------------------
-    int BatteryLevel_Count = 1;
-    
-    int WifiSymbol_State = 0;
-    
-    int  batteryLevel = 0;
-    bool batteryLow = false;
-    bool charging = true;
-    bool displayBattery = true;
-
-    
-    bool WifiIcon_Blinking = true;
-    bool WifiIcon_Blink = true;
-    
-    int BatteryBlink_TIMER_INTERVAL = 600;      //-- elapsed timer interval
-    elapsedMillis BatteryBlink_ELAPSED_TIMER;   //-- elapsed timer
-
-    int WifiBlink_TIMER_INTERVAL = 1000;        //-- elapsed timer interval
-    elapsedMillis WifiBlink_ELAPSED_TIMER;      //-- elapsed timer
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 void loop()
@@ -334,12 +306,6 @@ void loop()
                       //-- the gyroscope read function waits for an elapsed 100ms before reading as decleared in "IMU_CHECK_INTERVAL_MSEC"
                       //-- you MUST read the gyroscope outside of the SPI communication function.
                       //-- trying to read from the gyro from inside the SPI communcation function causes a "FIFO overflow!"
-
-
-  if (button1.pressed) {
-      Serial.printf("Btn1 pressed %u times\n", button1.numberKeyPresses);
-      button1.pressed = false;
-  }
 
   if (HalEftSns.pressed)
   {
@@ -397,107 +363,6 @@ void loop()
     {
       display.setCursor( xPos , yPos );  //-- offset each of the lines by 9 pixels so they dont overlap
       display.println(text);
-    }
-
-
-    void UpdateAndDraw_OBar()
-    {
-    
-      if (BatteryBlink_ELAPSED_TIMER >= BatteryBlink_TIMER_INTERVAL)
-      {
-        BatteryBlink_ELAPSED_TIMER = 0;
-        
-    
-        if(BatteryLevel_Count <= 0){                     //-- if the count is 0, turn on the icon and set it to 0
-          displayBattery = true;
-          batteryLevel = 0;
-        }
-        else if(BatteryLevel_Count <= 4){                //-- if between 1 and 4 then set the charge level between 1 and 4
-          batteryLevel = BatteryLevel_Count;
-        }
-        else if(BatteryLevel_Count == 5){                //-- if 5 then turn off the icon and reset the counter to -1
-          displayBattery = false;
-          BatteryLevel_Count = -1;
-            
-        }
-        BatteryLevel_Count ++;                            //-- counter ++
-      }
-    
-      if(displayBattery)
-        darwBattery();
-      if(charging)
-        darwChargingIcon();
-    
-    
-      Update_WifiIcon();
-      Darw_WifiIcon();
-      
-    }
-
-    bool WifiConnected = false;
-    
-    void Update_WifiIcon()
-    {
-      if(WifiConnected == true)
-      {
-        WifiSymbol_State = 3;                       //-- show state 3                           [Dot +2 lines]
-      }
-      else
-      {
-        if(WifiBlink_ELAPSED_TIMER <= 700)          //-- for 700ms show state 1                 [Dot]
-        {
-          WifiSymbol_State = 1;
-        }
-        else if(WifiBlink_ELAPSED_TIMER <= 1400)    //-- between 700ms -> 1400ms show state 2   [Dot +1 line]
-        {
-          WifiSymbol_State = 2;
-        }
-        else if(WifiBlink_ELAPSED_TIMER <= 2100)    //-- between 1400ms -> 2100ms show state 3  [Dot +2 lines]
-        {
-          WifiSymbol_State = 3;
-        }
-        else if(WifiBlink_ELAPSED_TIMER <= 3200)    //-- between 2100ms -> 3200ms show state 0  [Dot + Error exclamation mark]
-        {
-          WifiSymbol_State = 0;
-        }
-        else if(WifiBlink_ELAPSED_TIMER >= 3200)    //-- after 3200ms or more reset the elapsed counter back to 0
-        {
-          WifiBlink_ELAPSED_TIMER = 0;
-        }
-      }
-    
-    
-    }
-    
-    void darwBattery()
-    {  
-      if(batteryLevel == 0)
-        display.drawBitmap(105, 0, batteryIcons[0], battery_WIDTH, battery_HEIGHT, 1);
-      else if(batteryLevel == 1)
-        display.drawBitmap(105, 0, batteryIcons[1], battery_WIDTH, battery_HEIGHT, 1);
-      else if(batteryLevel == 2)
-        display.drawBitmap(105, 0, batteryIcons[2], battery_WIDTH, battery_HEIGHT, 1);
-      else if(batteryLevel == 3)
-        display.drawBitmap(105, 0, batteryIcons[3], battery_WIDTH, battery_HEIGHT, 1);
-      else if(batteryLevel == 4)
-        display.drawBitmap(105, 0, batteryIcons[4], battery_WIDTH, battery_HEIGHT, 1);
-    }
-    
-    void darwChargingIcon()
-    {
-      display.drawBitmap(98, 0, chargingIcon, chargingIcon_WIDTH, chargingIcon_HEIGHT, 1);
-    }
-    
-    void Darw_WifiIcon()
-    {  
-      if(WifiSymbol_State == 0)
-        display.drawBitmap(1, 1, WifiSymbol_Dots_0of3, WifiSymbol_Dots_WIDTH, WifiSymbol_Dots_HEIGHT, 1);
-      else if(WifiSymbol_State == 1)
-        display.drawBitmap(1, 1, WifiSymbol_Dots_1of3, WifiSymbol_Dots_WIDTH, WifiSymbol_Dots_HEIGHT, 1);
-      else if(WifiSymbol_State == 2)
-        display.drawBitmap(1, 1, WifiSymbol_Dots_2of3, WifiSymbol_Dots_WIDTH, WifiSymbol_Dots_HEIGHT, 1);
-      else if(WifiSymbol_State == 3)
-        display.drawBitmap(1, 1, WifiSymbol_Dots_3of3, WifiSymbol_Dots_WIDTH, WifiSymbol_Dots_HEIGHT, 1);
     }
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -574,20 +439,6 @@ void loop()
     }
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-//######################################################################################################
-//-------------------------------------Loops for IR Distance Sensor ------------------------------------
-    void Read_IR_DistanceSensor()
-    {
-      IR_DistanceSensorValue = analogRead(IR_DistanceSensorPin);
-    //IR_CalculatedDistance = ????
-      IR_CalculatedDistance = IR_DistanceSensorValue;
-
-      if(IR_CalculatedDistance > 50)
-        IR_Sensor_LedgeDetected = true;
-      else
-        IR_Sensor_LedgeDetected = false;
-    }
-//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 
 
@@ -595,70 +446,4 @@ void loop()
 
 
 
-//######################################################################################################
-//-------------------------------------------Loops for Navigation----------------------------------------------
-    void NavigatePath_Path1()
-    {
-      CallSoundBassedOnRequest("StartPath");
-      CallSoundBassedOnRequest("StartPath");
-      delay(300);
-
-      //DriveMotor_Go();
-      
-      PathMove_Forward.Go();
-      while(PathMove_Forward.Running == true){ delay(10); }
-      CallSoundBassedOnRequest("WaypointReached");
-      delay(100);
-
-      PathArcTurn_Left90.Go();
-      while(PathArcTurn_Left90.Running == true){ delay(10); }
-      CallSoundBassedOnRequest("WaypointReached");
-      delay(100);
-
-      PathMove_Forward.Go();
-      while(PathMove_Forward.Running == true){ delay(10); }
-      CallSoundBassedOnRequest("WaypointReached");
-      delay(100);
-
-      PathArcTurn_Right90.Go();
-      while(PathArcTurn_Right90.Running == true){ delay(10); }
-      CallSoundBassedOnRequest("WaypointReached");
-      delay(100);
-
-      PathArcTurn_Right90.Go();
-      while(PathArcTurn_Right90.Running == true){ delay(10); }
-      CallSoundBassedOnRequest("WaypointReached");
-      delay(100);
-
-      PathMove_Forward.Go();
-      while(PathMove_Forward.Running == true){ delay(10); }
-      CallSoundBassedOnRequest("WaypointReached");
-      delay(100);
-
-      PathArcTurn_Left90.Go();
-      while(PathArcTurn_Left90.Running == true){ delay(10); }
-      CallSoundBassedOnRequest("WaypointReached");
-      delay(100);
-
-      PathMove_Backward.Go();
-      while(PathMove_Backward.Running == true){ delay(10); }
-      CallSoundBassedOnRequest("WaypointReached");
-      delay(100);
-
-      PathMove_Backward.Go();
-      while(PathMove_Backward.Running == true){ delay(10); }
-      CallSoundBassedOnRequest("WaypointReached");
-      delay(100);
-
-      PathMove_Backward.Go();
-      while(PathMove_Backward.Running == true){ delay(10); }
-      CallSoundBassedOnRequest("WaypointReached");
-      delay(100);
-
-      PathMove_Backward.Go();
-      while(PathMove_Backward.Running == true){ delay(10); }
-      delay(100);
-      CallSoundBassedOnRequest("StartPath");
-      CallSoundBassedOnRequest("StartPath");
-    }
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
