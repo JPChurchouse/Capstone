@@ -102,10 +102,59 @@
     int global_fifo_count = 0; //made global so can monitor from outside GetIMUHeadingDeg() fcn
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
+
+class HYSTERESIS
+{
+  private:
+
+    int size = 20;
+    int array [size];
+    int index = 0;
+    bool state;
+
+  public:
+
+    HYSTERESIS(int fill = 0, float lower = 0.4; float upper = 0.6) 
+    {
+      state = fill > 0 ? true : false;
+      Nuke (fill);
+    }
+
+    void Add(int i)
+    {
+      array [index] = i;
+      if (++index >= size) index = 0;
+    }
+
+    void Nuke(int k = 0)
+    {
+      for (int i = 0; i < size; i++) array [i] = k;
+      index = 0;
+    }
+
+    int Sum()
+    {
+      int k = 0;
+      for (int i = 0; i < size; i++) k += array [i];
+      return k;
+    }
+
+    float Mean()
+    {
+      return Sum() / size;
+    }
+
+    bool Output()
+    {
+      state = Mean() > (state ? lower : upper);
+      return state;
+    }
+}
+
 //######################################################################################################
 //---------------------------------------Hall Effect Sensor Variables-----------------------------------
-    float SamplingDistanceInM = 0.0309839375;
-    float TotalDistanceTrackedInM = 0;
+    double SamplingDistanceInM = 1 / 2;
+    double TotalDistanceTrackedInM = 0; // DOUBLE?
     int NumberOfPasses;
 
     //variables to keep track of the timing of recent interrupts
