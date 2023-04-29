@@ -18,7 +18,6 @@
 
 //#############################################################################
 //------------------------------Include Jordan's Custom Libraries--------------
-    #include "MotorDrive.h"
     #include "CustomDataTypes.h"
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -277,8 +276,6 @@ void setup()
   Serial.println("");         //-- end the "......>......" initilisation line
 
   Setup_HallEffectSensor();   //-- [Internal]
-
-  Setup_MotorDrive();         //-- [External] A LocalFolder library, Saved next to the .ino
 }
 
 
