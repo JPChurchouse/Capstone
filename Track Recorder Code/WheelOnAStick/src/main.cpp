@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 /*
  * This program demonstrates .....
  * 
@@ -18,6 +20,7 @@
 
 //#############################################################################
 //------------------------------Include Jordan's Custom Libraries--------------
+    #include "MotorDrive.h"
     #include "CustomDataTypes.h"
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -44,7 +47,11 @@
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 
-
+float GetIMUHeadingDeg();
+void LCD_PrintLn( int xPos, int yPos, String text );
+void Read_Gyroscope();
+#define MPU6050_INTERRUPT_FIFO_OFLOW_BIT    4
+#define MPU6050_INTERRUPT_DMP_INT_BIT 3
 
 
 
@@ -101,59 +108,10 @@
     int global_fifo_count = 0; //made global so can monitor from outside GetIMUHeadingDeg() fcn
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-
-class HYSTERESIS
-{
-  private:
-
-    int size = 20;
-    int array [size];
-    int index = 0;
-    bool state;
-
-  public:
-
-    HYSTERESIS(int fill = 0, float lower = 0.4; float upper = 0.6) 
-    {
-      state = fill > 0 ? true : false;
-      Nuke (fill);
-    }
-
-    void Add(int i)
-    {
-      array [index] = i;
-      if (++index >= size) index = 0;
-    }
-
-    void Nuke(int k = 0)
-    {
-      for (int i = 0; i < size; i++) array [i] = k;
-      index = 0;
-    }
-
-    int Sum()
-    {
-      int k = 0;
-      for (int i = 0; i < size; i++) k += array [i];
-      return k;
-    }
-
-    float Mean()
-    {
-      return Sum() / size;
-    }
-
-    bool Output()
-    {
-      state = Mean() > (state ? lower : upper);
-      return state;
-    }
-}
-
 //######################################################################################################
 //---------------------------------------Hall Effect Sensor Variables-----------------------------------
-    double SamplingDistanceInM = 1 / 2;
-    double TotalDistanceTrackedInM = 0; // DOUBLE?
+    float SamplingDistanceInM = 0.0309839375;
+    float TotalDistanceTrackedInM = 0;
     int NumberOfPasses;
 
     //variables to keep track of the timing of recent interrupts
@@ -325,6 +283,8 @@ void setup()
   Serial.println("");         //-- end the "......>......" initilisation line
 
   Setup_HallEffectSensor();   //-- [Internal]
+
+  Setup_MotorDrive();         //-- [External] A LocalFolder library, Saved next to the .ino
 }
 
 
