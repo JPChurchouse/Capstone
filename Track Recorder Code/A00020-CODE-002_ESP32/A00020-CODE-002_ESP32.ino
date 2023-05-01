@@ -123,7 +123,7 @@
     void IRAM_ATTR HallEffectISR()
     {
       HallEffect_time = millis();
-      if (HallEffect_time - last_HallEffect_time > 100) //--  <- debounce delay in milliseconds
+      if (HallEffect_time - last_HallEffect_time > 200) //--  <- debounce delay in milliseconds
       {
         HalEftSns.counter++;
         HalEftSns.pressed = true;
@@ -317,6 +317,8 @@ void loop()
     Serial.print( TotalDistanceTrackedInM );
     Serial.print( ',' );
     Serial.print( String(x_Rotation) );
+    Serial.print( ',' );
+    Serial.print( String(millis()) );
     Serial.println("");
 
     HalEftSns.pressed = false;
