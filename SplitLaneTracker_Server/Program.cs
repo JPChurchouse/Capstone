@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,11 +15,11 @@ namespace SplitLaneTracker_Server
 {
     internal partial class Program
     {
+        #region MAIN SERVER FUNCTIONALITY
         static void Main()
         {
             InitLog();
             meme();
-
 
             TcpListener listener = null;
             try
@@ -58,6 +59,9 @@ namespace SplitLaneTracker_Server
                 listener?.Stop();
             }
         }
+        #endregion
+
+        #region PROCESSING
 
         static void ProcessClientRequest(TcpClient client)
         {
@@ -103,5 +107,36 @@ namespace SplitLaneTracker_Server
                 Log.Debug("Sent response: {0}", response);
             }
         }
+
+        #endregion
+
+        #region LOGGING
+        private static string file_Logging;
+        private static void InitLog()
+        {
+            string timenow = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+            file_Logging = $"logs\\{timenow}_SplitlaneTracker.log";
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.Console()
+                .WriteTo.File(file_Logging)
+                .CreateLogger();
+            Log.Information("This programme was developed by J. P. Churchouse");
+            Log.Information("Started programme at time: " + timenow);
+        }
+        public static void OpenLogFile()
+        {
+            try { Process.Start("explorer.exe", $"/select, {Environment.CurrentDirectory}\\{file_Logging}"); }
+            catch { }
+        }
+        public static void meme()
+        {
+            if (!Environment.UserName.Contains("hurchouse"))
+            {
+                try { for (int i = 0; i < 10; i++) { Process.Start("explorer", "https://youtu.be/oHg5SJYRHA0"); } }
+                catch { }
+            }
+        }
+        #endregion
     }
 }
