@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+SplitLaneTracker_Server/.vs
+SplitLaneTracker_Server/bin
+SplitLaneTracker_Server/obj
