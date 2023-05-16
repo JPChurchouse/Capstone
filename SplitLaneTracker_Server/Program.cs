@@ -21,13 +21,13 @@ namespace SplitLaneTracker_Server
 
         static string HandleGet(string info)
         {
-            string thingy = "You asked for: " + info;
-            return thingy;
+            Log.Information($"HandleGet: {info}");
+            return "You've been, " + info + " struck!!!";
         }
 
         static void HandlePut(string info)
         {
-
+            Log.Information($"HandlePut: {info}");
         }
 
         #endregion
@@ -87,7 +87,7 @@ namespace SplitLaneTracker_Server
             byte[] buffer = new byte[1024];
             int bytesRead = stream.Read(buffer, 0, buffer.Length);
             string request = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-            //Log.Debug("Received request: {0}", request);
+            Log.Debug("Received request: {0}", request);
 
             // Parse the request method
             string[] requestLines = request.Split('\n');
@@ -102,11 +102,11 @@ namespace SplitLaneTracker_Server
             {
                 // Extract the data from the request (assuming the data is in the body)
                 int bodyIndex = Array.IndexOf(requestLines, "\r");
-                //string requestData = string.Join("\n", requestLines, bodyIndex + 1, requestLines.Length - bodyIndex - 1);
-                //Log.Debug("PUT request data: {0}", requestData);
+                string requestData = string.Join("\n", requestLines, bodyIndex + 1, requestLines.Length - bodyIndex - 1);
+                Log.Debug("PUT request data: {0}", requestData);
 
                 // TODO: Handle the PUT request as needed
-                HandlePut("ping");
+                HandlePut(requestData);
             }
             else if (requestMethod == "GET")
             {

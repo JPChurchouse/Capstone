@@ -33,3 +33,6 @@
 SplitLaneTracker_Server/.vs
 SplitLaneTracker_Server/bin
 SplitLaneTracker_Server/obj
+SplitLaneTracker_ClientTEST/obj
+SplitLaneTracker_ClientTEST/.vs
+SplitLaneTracker_ClientTEST/bin
