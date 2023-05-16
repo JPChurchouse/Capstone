@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,13 +8,18 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
+// Special thanks to Chat GPT for sponsoring part of this code:
 
 namespace SplitLaneTracker_Server
 {
-    internal class Program
+    internal partial class Program
     {
         static void Main()
         {
+            InitLog();
+            meme();
+
+
             TcpListener listener = null;
             try
             {
@@ -26,25 +32,25 @@ namespace SplitLaneTracker_Server
 
                 // Start listening for client requests
                 listener.Start();
-                Console.WriteLine("Server started. Listening on {0}:{1}", ipAddress, port);
+                Log.Information("Server started. Listening on {0}:{1}", ipAddress, port);
 
                 while (true)
                 {
-                    Console.WriteLine("Waiting for client connection...");
+                    Log.Information("Waiting for client connection...");
                     TcpClient client = listener.AcceptTcpClient();
-                    Console.WriteLine("Client connected!");
+                    Log.Information("Client connected!");
                     
                     // Process the client request
                     ProcessClientRequest(client);
 
                     // Close the client connection
                     client.Close();
-                    Console.WriteLine("Client connection closed.");
+                    Log.Information("Client connection closed.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occurred: {0}", ex.Message);
+                Log.Error("An error occurred: {0}", ex.Message);
             }
             finally
             {
@@ -62,7 +68,7 @@ namespace SplitLaneTracker_Server
             byte[] buffer = new byte[1024];
             int bytesRead = stream.Read(buffer, 0, buffer.Length);
             string request = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-            Console.WriteLine("Received request: {0}", request);
+            Log.Debug("Received request: {0}", request);
 
             // Parse the request method
             string[] requestLines = request.Split('\n');
@@ -74,7 +80,7 @@ namespace SplitLaneTracker_Server
                 // Extract the data from the request (assuming the data is in the body)
                 int bodyIndex = Array.IndexOf(requestLines, "\r");
                 string requestData = string.Join("\n", requestLines, bodyIndex + 1, requestLines.Length - bodyIndex - 1);
-                Console.WriteLine("PUT request data: {0}", requestData);
+                Log.Debug("PUT request data: {0}", requestData);
 
                 // TODO: Handle the PUT request as needed
             }
@@ -86,7 +92,7 @@ namespace SplitLaneTracker_Server
                 string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, world!";
                 byte[] responseBytes = Encoding.ASCII.GetBytes(response);
                 stream.Write(responseBytes, 0, responseBytes.Length);
-                Console.WriteLine("Sent response: {0}", response);
+                Log.Debug("Sent response: {0}", response);
             }
             else
             {
@@ -94,7 +100,7 @@ namespace SplitLaneTracker_Server
                 string response = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
                 byte[] responseBytes = Encoding.ASCII.GetBytes(response);
                 stream.Write(responseBytes, 0, responseBytes.Length);
-                Console.WriteLine("Sent response: {0}", response);
+                Log.Debug("Sent response: {0}", response);
             }
         }
     }

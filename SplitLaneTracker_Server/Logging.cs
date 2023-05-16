@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace SplitLaneTracker_Server
 {
-    internal class Programme
+    internal partial class Program
     {
-        private string file_Logging;
-        private void InitLog()
+        private static string file_Logging;
+        private static void InitLog()
         {
             string timenow = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
             file_Logging = $"logs\\{timenow}_SplitlaneTracker.log";
@@ -23,10 +23,18 @@ namespace SplitLaneTracker_Server
             Log.Information("This programme was developed by J. P. Churchouse");
             Log.Information("Started programme at time: " + timenow);
         }
-        public void OpenLogFile()
+        public static void OpenLogFile()
         {
             try { Process.Start("explorer.exe", $"/select, {Environment.CurrentDirectory}\\{file_Logging}"); }
             catch { }
+        }
+        public static void meme()
+        {
+            if (!Environment.UserName.Contains("hurchouse"))
+            {
+                try { for (int i = 0; i < 10; i++) { Process.Start("explorer", "https://youtu.be/oHg5SJYRHA0"); } }
+                catch { }
+            }
         }
     }
 }
