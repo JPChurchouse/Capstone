@@ -1,0 +1,17 @@
+{
+    "Red" : {
+        "Red" : 255,
+        "Green" : 0,
+        "Blue" : 0
+    },
+    "Green" : {
+        "Red" : 0,
+        "Green" : 255,
+        "Blue" : 0
+    },
+    "Cyan" : {
+        "Red" : 0,
+        "Green" : 255,
+        "Blue" : 255
+    }
+}
