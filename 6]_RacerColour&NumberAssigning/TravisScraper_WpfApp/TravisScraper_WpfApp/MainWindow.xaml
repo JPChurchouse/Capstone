@@ -1,0 +1,19 @@
+﻿<Window x:Class="TravisScraper_WpfApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TravisScraper_WpfApp"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <TextBox x:Name="DefaultURL_textBox" HorizontalAlignment="Left" Margin="85,14,0,0" TextWrapping="Wrap" Text="https://www.google.com/" VerticalAlignment="Top" Width="300"/>
+        <Label x:Name="label" Content="Default URL:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="URL_textBox" HorizontalAlignment="Left" Margin="85,36,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300"/>
+        <Label x:Name="label_Copy" Content="URL:" HorizontalAlignment="Left" Margin="51,32,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="ResetURL_button" Content="Reset" HorizontalAlignment="Left" Margin="15,34,0,0" VerticalAlignment="Top" Click="ResetURL_button_Click"/>
+        <TextBox x:Name="WebpageText_textBox" TextWrapping="Wrap" Text="TextBox" Margin="10,63,10,10"/>
+        <Button x:Name="ReadTheWebpage_Button" Content="Read the webpage" HorizontalAlignment="Left" Margin="400,19,0,0" VerticalAlignment="Top" Height="31" Width="113" Click="ReadTheWebpage_Button_Click"/>
+        <Label x:Name="ReadRunning_label" Content="Running..." HorizontalAlignment="Left" Margin="513,19,0,0" VerticalAlignment="Top" FontStyle="Italic" Foreground="#FF14C611" FontWeight="Bold" FontSize="16"/>
+    </Grid>
+</Window>
