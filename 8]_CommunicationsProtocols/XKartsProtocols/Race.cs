@@ -7,24 +7,45 @@ using Newtonsoft.Json;
 
 namespace XKarts
 {
-    namespace Server
+    namespace Creator
     {
         public class Race
         {
-            // Private list to hold the info on all karts in the race
-            private List<Identifier.Kart> RaceList = new List<KIdentifierart.Kart>();
+            // Public list to hold the info on all karts in the race
+            public List<Identifier.Kart> KartList = new List<Identifier.Kart>();
+
+            // Bytes to hold the required number of laps
+            public byte Laps_Left, Laps_Right, Laps_Total;
 
             /// <summary>
-            /// Create new Race object
+            /// Create a race with the required info
             /// </summary>
-            /// <param name="raceList">
-            /// Initalise a list of Karts [optional]
-            /// </param>
-            Race(List<Identifier.Kart> raceList)
+            /// <param name="List"> List of Karts in the race [optional] </param>
+            /// <param name="Left"> Required uses of Left lane [optional] </param>
+            /// <param name="Right"> Required uses of Right lane [optional] </param>
+            /// <param name="Total"> Required Total laps [optional] </param>
+            /// <param name="Json"> Populate from JSON [optional - overrides other params] </param>
+            Race(
+                List<Identifier.Kart>? List = null,
+                byte Left = 0,
+                byte Right = 0,
+                byte Total = 0,
+                string? Json = null)
             {
-                RaceList = raceList;
+                // First check if Json is available
+                if (Json != null)
+                {
+                    PopulateFromJson(Json);
+                    return;
+                }
+
+                // Check if list is avail and apply
+                if (List != null) KartList = List;
+
+                Laps_Left = Left;
+                Laps_Right = Right;
+                Laps_Total = Total;
             }
-            Race() { }
 
 
             /// <summary>
@@ -38,22 +59,15 @@ namespace XKarts
             /// </param>
             public void AddKart(Identifier.Kart kart, bool clear = false)
             {
-                if (clear)
-                {
-                    RaceList.Clear();
-                }
+                if (clear) KartList.Clear();
 
-                RaceList.Add(kart);
+                KartList.Add(kart);
             }
-
             public void AddKart(List<Identifier.Kart> kartList, bool clear = false)
             {
-                if (clear)
-                {
-                    RaceList.Clear();
-                }
+                if (clear) KartList.Clear();
 
-                RaceList.AddRange(kartList);
+                KartList.AddRange(kartList);
             }
 
             /// <summary>
@@ -61,22 +75,27 @@ namespace XKarts
             /// </summary>
             public void Clear()
             {
-                RaceList.Clear();
+                KartList.Clear();
             }
 
             /// <summary>
-            /// Convert the current Race List to a JSON string for transmission
+            /// Convert the current Race Creator object to a JSON string for transmission
             /// </summary>
             /// <returns>
             /// Serialised JSON string
             /// </returns>
-            public string SerialiseToString()
+            public string GenerateJsonString()
             {
-                return JsonConvert.SerializeObject(RaceList);
+                if (!KartList.Any())
+                {
+                    throw new ArgumentNullException("No Karts assigned to race");
+                }
+
+                return JsonConvert.SerializeObject(this);
             }
 
             /// <summary>
-            /// Convert the received JSON string into the Race List
+            /// Convert the received JSON string into the Race Creator object
             /// </summary>
             /// <param name="data">
             /// JSON string for Deserialisation
@@ -84,14 +103,28 @@ namespace XKarts
             /// <exception cref="ArgumentNullException">
             /// Conversion invalid
             /// </exception>
-            public void DeserialiseToList(string data)
+            public void PopulateFromJson(string data)
             {
                 // Ensure the list is empty
-                RaceList.Clear();
+                KartList.Clear();
 
                 // Attempt to Deserialise the provided data and put it in the list
-                RaceList = JsonConvert.DeserializeObject<List<Identifier.Kart>>(data) ?? 
+                var temp = 
+                    JsonConvert.DeserializeObject<Race>(data) ??
                     throw new ArgumentNullException("Unable to Deserialise");
+
+                // Validate List info
+                var list = temp.KartList;
+                if (list == null || !list.Any())
+                {
+                    throw new ArgumentNullException("No Karts in race");
+                }
+                KartList = list;
+                
+                // Assign other race info
+                Laps_Left = temp.Laps_Left;
+                Laps_Right = temp.Laps_Right;
+                Laps_Total = temp.Laps_Total;
             }
         }
     }
