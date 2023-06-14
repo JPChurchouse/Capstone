@@ -8,15 +8,16 @@ namespace XKarts
 {
     namespace Identifier
     {
-        /// <summary>
-        /// Public struct for creating and sharing Kart informaion.
-        /// Holds: ID number, Beacon Colour.
-        /// </summary>
-        public struct Kart
+        public class Kart
         {
             public byte ID;
             public Colour Colour;
 
+            /// <summary>
+            /// Public struct for creating and sharing Kart informaion.
+            /// </summary>
+            /// <param name="id"></param>
+            /// <param name="colour"></param>
             public Kart(byte id, Colour colour)
             {
                 ID = id;

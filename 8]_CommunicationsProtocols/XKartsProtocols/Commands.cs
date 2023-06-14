@@ -12,9 +12,5 @@ namespace XKarts
         {
             RaceInfo,things
         }
-        public string GetCommand(Command c)
-        {
-            return "Fuck You";
-        }
     }
 }

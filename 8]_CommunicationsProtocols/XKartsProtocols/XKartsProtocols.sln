@@ -5,6 +5,8 @@ VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XKartsProtocols", "XKartsProtocols.csproj", "{2272C551-D5C8-4371-9B34-A167A3D3CFFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "..\Tests\Tests.csproj", "{DC845ADE-6D64-49EC-80DB-243C9B325E5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{2272C551-D5C8-4371-9B34-A167A3D3CFFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2272C551-D5C8-4371-9B34-A167A3D3CFFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2272C551-D5C8-4371-9B34-A167A3D3CFFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC845ADE-6D64-49EC-80DB-243C9B325E5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC845ADE-6D64-49EC-80DB-243C9B325E5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC845ADE-6D64-49EC-80DB-243C9B325E5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC845ADE-6D64-49EC-80DB-243C9B325E5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
