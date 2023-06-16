@@ -49,6 +49,9 @@
     <Reference Include="XkartsCommonFunctions">
       <HintPath>..\XkartsCommonFunctions\bin\Debug\net7.0\XkartsCommonFunctions.dll</HintPath>
     </Reference>
+    <Reference Include="XKartsProtocols">
+      <HintPath>..\XKartsProtocols\bin\Debug\net7.0\XKartsProtocols.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">

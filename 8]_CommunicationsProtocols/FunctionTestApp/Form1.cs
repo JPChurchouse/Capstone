@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using static XkartsCommonFunctions.Colours;
+using XKarts.Identifier;
 
 namespace FunctionTestApp
 {
@@ -13,20 +13,10 @@ namespace FunctionTestApp
 
         private void button1_Click(object sender, EventArgs e)
         {
-            try
-            {
-                testfunc();
+            var red = Colour.Red;
 
-                var steve = GetColoursList();
-                foreach (var item in steve)
-                {
-                    Console.WriteLine(item);
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
+            Console.WriteLine(red.ToString());
+            Console.WriteLine(red);
             
 
         }
