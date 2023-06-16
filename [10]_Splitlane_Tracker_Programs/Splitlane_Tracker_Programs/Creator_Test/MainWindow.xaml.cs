@@ -15,18 +15,19 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using XKarts;
+using XKarts.Logging;
 
-namespace Creator_Test
+namespace TestPlatform
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        Logger steve = new Logger();
         public MainWindow()
         {
             InitializeComponent();
-            InitLog();
         }
 
 
@@ -35,8 +36,9 @@ namespace Creator_Test
             var colour = XKarts.Identifier.Colour.Red;
             ulong integer = 0xFF0000;
 
-            Log.Information($"Testing RED: integer=={integer}, colour=={colour}, colasint=={(ulong)colour},equal=={(ulong)colour==integer}");
+            steve.log($"Testing RED: integer=={integer}, colour=={colour}, colasint=={(ulong)colour},equal=={(ulong)colour==integer}");
 
+            steve.open();
         }
     }
 }
