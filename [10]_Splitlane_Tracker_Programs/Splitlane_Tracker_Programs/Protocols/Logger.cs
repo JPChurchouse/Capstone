@@ -11,6 +11,11 @@ namespace XKarts.Logging
 {
     public class Logger
     {
+        // CONSTRUCTOR, DESTRUCTOR //
+        /// <summary>
+        /// Create new Logger object
+        /// Logger automatically selects file location
+        /// </summary>
         public Logger()
         {
             init();
@@ -21,6 +26,7 @@ namespace XKarts.Logging
             Log.CloseAndFlush();
         }
 
+        // PUBLIC VARS AND FUNCS //
         /// <summary>
         /// Log message type
         /// </summary>
@@ -64,7 +70,19 @@ namespace XKarts.Logging
             log(exc.Message, Type.error);
         }
 
+        /// <summary>
+        /// Select the log file in File Explorer
+        /// </summary>
+        public void open()
+        {
+            try 
+            { 
+                Process.Start("explorer.exe", $"/select, {file}");
+            }
+            catch { }
+        }
 
+        // PRIVATE VARS AND FUNCS //
         // Log file name
         private string file = "logs/err.txt";
 
@@ -78,12 +96,13 @@ namespace XKarts.Logging
 
             // Generate filepath
             string directory;
-            #if DEBUG
+            #if DEBUG           // When in DEBUG mode, log directory = working directory
             directory = $@"{Environment.CurrentDirectory}\logs";
-            #else
-            directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + $"/{name}_logs" ;
+            #else               // When in RELEASE mode, log directory = user's Documents folder and has program name
+            directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + $@"\{name}_logs" ;
             #endif
 
+            // Generate file
             string time = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
             file = $@"{directory}\{time}_{name}_v{vers}.log";
 
@@ -97,20 +116,8 @@ namespace XKarts.Logging
             // Inital log information
             Log.Information("This program was developed by J. P. Churchouse");
             Log.Information($"User: {Environment.MachineName} - {Environment.UserName}");
-            Log.Information($"Path: {Environment.ProcessPath}");
-            Log.Information($"file: {file}");
-        }
-
-        /// <summary>
-        /// Select the log file in File Explorer
-        /// </summary>
-        public void open()
-        {
-            try 
-            { 
-                Process.Start("explorer.exe", $"/select, {file}");
-            }
-            catch { }
+            Log.Information($"EXE Path: {Environment.ProcessPath}");
+            Log.Information($"LOG Path: {file}");
         }
     }
 }
