@@ -26,7 +26,7 @@ namespace TestPlatform
     /// </summary>
     public partial class MainWindow : Window
     {
-        Logger log = new Logger();
+        private static Logger log = new Logger();
         public MainWindow()
         {
             InitializeComponent();
@@ -76,6 +76,7 @@ namespace TestPlatform
         {
             try
             {
+                log.log($"IP and Port: {ipAddress}:{port}");
                 using (TcpClient client = new TcpClient())
                 {
                     // Connect to the IP address and port
@@ -96,7 +97,7 @@ namespace TestPlatform
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occurred: {0}", ex.Message);
+                log.log($"An error occurred: {ex.Message})");
             }
         }
     }

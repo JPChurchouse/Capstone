@@ -12,8 +12,8 @@ namespace XKarts.Comms
     public static class Constants 
     { 
         public static int PortNum = 7070;
-        //public static IPAddress IpAddress = new IPAddress(new byte[] { 192, 168, 1, 253 });
-        public static IPAddress IpAddress = new IPAddress(new byte[] { 0, 0, 0, 0 });
+        public static IPAddress IpAddress = new IPAddress(new byte[] { 192, 168, 1, 253 });
+        //public static IPAddress IpAddress = new IPAddress(new byte[] { 0, 0, 0, 0 });
     }
     
     public struct Parameters
