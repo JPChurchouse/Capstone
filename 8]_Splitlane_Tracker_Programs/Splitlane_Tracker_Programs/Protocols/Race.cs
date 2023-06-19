@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -23,7 +24,7 @@ namespace XKarts.Creator
         /// <param name="Right"> Required uses of Right lane [optional] </param>
         /// <param name="Total"> Required Total laps [optional] </param>
         /// <param name="Json"> Populate from JSON [optional - overrides other params] </param>
-        Race(
+        public Race(
             List<Identifier.Kart>? List = null,
             byte Left = 0,
             byte Right = 0,
@@ -71,9 +72,12 @@ namespace XKarts.Creator
         /// <summary>
         /// Clear the Race List
         /// </summary>
-        public void Clear()
+        public void Reset()
         {
             KartList.Clear();
+            Laps_Left = 0;
+            Laps_Right = 0;
+            Laps_Total = 0;
         }
 
         /// <summary>
