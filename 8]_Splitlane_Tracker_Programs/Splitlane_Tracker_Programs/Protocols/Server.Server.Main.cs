@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,7 +11,7 @@ namespace XKarts.Server
     public partial class Server
     {
         // Logger
-        private static Logger log = new Logger();
+        private static Logging.Logger log = new Logging.Logger();
 
         // List of active Karts and their info
         private List<KartStats> KartList = new List<KartStats>();
@@ -23,8 +25,8 @@ namespace XKarts.Server
             log.log("TCP Server initalising");
 
             // Specify the desired hostname and port
-            string hostname = XKarts.Comms.Constants.HostName;
-            int port = XKarts.Comms.Constants.PortNum;
+            string hostname = Comms.Constants.HostName;
+            int port = Comms.Constants.PortNum;
 
             try
             {
@@ -41,7 +43,7 @@ namespace XKarts.Server
                 {
                     // Accept client connections
                     TcpClient client = server.AcceptTcpClient();
-                    log.log("Client connected.", Logger.Type.info);
+                    log.log("Client connected.", Logging.Logger.Type.info);
 
                     // Handle client communication in a separate thread
                     HandleClient(client);
