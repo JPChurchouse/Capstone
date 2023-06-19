@@ -16,11 +16,12 @@ namespace XKarts.Server
 
         static void HandlePut(string page, string info)
         {
-            log.log($"HandlePut: {info}");
+            
             page.Replace("/", "");
 
+            log.log($"HandlePut: Page-{page} Info-{info}");
 
-            Comms.Command command = (Comms.Command) Enum.Parse(typeof(Comms.Command), info);
+            Comms.Command command = (Comms.Command) Enum.Parse(typeof(Comms.Command), page);
 
             switch (command)
             {
