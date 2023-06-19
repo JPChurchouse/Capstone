@@ -13,8 +13,6 @@ namespace XKarts.Comms
 {
     public static class Communicator
     {
-
-
         public static void PostToServer(Logging.Logger log, Command command, string data)
         {
             var ipAddress = Constants.IpAddress;

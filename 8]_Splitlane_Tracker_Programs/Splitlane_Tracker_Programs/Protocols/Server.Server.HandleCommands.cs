@@ -17,6 +17,7 @@ namespace XKarts.Server
         static void HandlePut(string page, string info)
         {
             log.log($"HandlePut: {info}");
+            page.Replace("/", "");
 
 
             Comms.Command command = (Comms.Command) Enum.Parse(typeof(Comms.Command), info);
@@ -35,8 +36,7 @@ namespace XKarts.Server
 
         private static void Handle_NewRaceInfo(string info)
         {
-
-
+            InitRace(info);
         }
     }
 }
