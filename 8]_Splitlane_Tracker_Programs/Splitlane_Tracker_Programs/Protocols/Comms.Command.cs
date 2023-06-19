@@ -10,6 +10,7 @@ namespace XKarts.Comms
     {
         NewRaceInfo,
         StopRace,
-        ClearRaceInfo
+        ClearRaceInfo,
+        KartDetected
     }
 }

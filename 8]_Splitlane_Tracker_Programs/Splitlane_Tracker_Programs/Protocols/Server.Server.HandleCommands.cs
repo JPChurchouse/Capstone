@@ -26,7 +26,15 @@ namespace XKarts.Server
             switch (command)
             {
                 case Comms.Command.NewRaceInfo:
-                    Handle_NewRaceInfo(info);
+                    log.log("NewRaceInfo");
+                    InitRace(info);
+                    break;
+                case Comms.Command.StopRace:
+                    log.log("StopRace");
+                    break;
+                case Comms.Command.KartDetected:
+                    log.log("KartDetected");
+                    KartDetected(info);
                     break;
 
                 default: break;
@@ -35,9 +43,23 @@ namespace XKarts.Server
             
         }
 
-        private static void Handle_NewRaceInfo(string info)
+        private static void KartDetected(string info)
         {
-            InitRace(info);
+            string[] info_split = info.Split(' ');
+            string _colour = info_split[0];
+            string _lane = info_split[1];
+
+            Identifier.Colour colour = (Identifier.Colour) Enum.Parse(typeof(Identifier.Colour), _colour);
+            Identifier.Lane lane = (Identifier.Lane) Enum.Parse(typeof(Identifier.Lane), _lane);
+
+            foreach (KartStats kart in KartList)
+            {
+                if (kart.getColour() == colour)
+                {
+                    kart.addLap(lane);
+                    break;
+                }
+            }
         }
     }
 }

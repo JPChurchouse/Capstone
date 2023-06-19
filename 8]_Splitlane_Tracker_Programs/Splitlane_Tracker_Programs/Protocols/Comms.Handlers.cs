@@ -13,7 +13,7 @@ namespace XKarts.Comms
 {
     public static class Communicator
     {
-        public static void PostToServer(Logging.Logger log, Command command, string data)
+        public static void PostToServer(Logging.Logger log, Command command, string data = "Hello world!")
         {
             var ipAddress = Constants.IpAddress;
             var port = Constants.PortNum;

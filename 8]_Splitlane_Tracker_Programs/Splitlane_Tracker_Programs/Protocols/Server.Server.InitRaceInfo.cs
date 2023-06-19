@@ -28,13 +28,13 @@ namespace XKarts.Server
             log.log("Init race complete");
 
 
-            log.log($"\nRace info as follows:\n" +
-                $"Numer laps L R T: {Laps_Left} {Laps_Right} {Laps_Total}\n");
+            log.log($"\nRace info as follows:");
+            log.log($"Numer laps L R T: {Laps_Left} {Laps_Right} {Laps_Total}");
             foreach(KartStats kart in KartList)
             {
-                log.log($"KartInfo ID: {kart.getID()} Colour: {kart.getColour()}\n");
+                log.log($"KartInfo ID: {kart.getID()} Colour: {kart.getColour()}");
             }
-            log.log("-Ends\n");
+            log.log("---\n");
 
         }
     }
