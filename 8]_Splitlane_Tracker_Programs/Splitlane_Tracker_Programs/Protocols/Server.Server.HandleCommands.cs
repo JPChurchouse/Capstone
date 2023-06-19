@@ -17,7 +17,7 @@ namespace XKarts.Server
         static void HandlePut(string page, string info)
         {
             
-            page.Replace("/", "");
+            page = page.Replace("/", "");
 
             log.log($"HandlePut: Page-{page} Info-{info}");
 
