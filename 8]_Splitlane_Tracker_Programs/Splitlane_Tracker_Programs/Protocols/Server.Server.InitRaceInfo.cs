@@ -9,7 +9,7 @@ namespace XKarts.Server
 {
     public partial class Server
     {
-        public void InitRace(string json)
+        public static void InitRace(string json)
         {
             log.log("Init race");
             Creator.Race import_info = new Creator.Race(Json: json);
@@ -26,6 +26,16 @@ namespace XKarts.Server
             Laps_Total = import_info.Laps_Total;
 
             log.log("Init race complete");
+
+
+            log.log($"\nRace info as follows:\n" +
+                $"Numer laps L R T: {Laps_Left} {Laps_Right} {Laps_Total}\n");
+            foreach(KartStats kart in KartList)
+            {
+                log.log($"KartInfo ID: {kart.getID()} Colour: {kart.getColour()}\n");
+            }
+            log.log("-Ends\n");
+
         }
     }
 }

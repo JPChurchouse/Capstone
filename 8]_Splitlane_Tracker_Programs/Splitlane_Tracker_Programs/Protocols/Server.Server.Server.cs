@@ -12,7 +12,7 @@ namespace XKarts.Server
         {
 
             // Specify the IP address and port number
-            IPAddress ipAddress = IPAddress.Any;
+            IPAddress ipAddress = Comms.Constants.IpAddress;
             int port = Comms.Constants.PortNum;
 
             // Create a TCP listener

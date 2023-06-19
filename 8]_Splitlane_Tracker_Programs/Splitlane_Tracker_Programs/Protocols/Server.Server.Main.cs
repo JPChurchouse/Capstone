@@ -14,10 +14,10 @@ namespace XKarts.Server
         private static Logging.Logger log = new Logging.Logger();
 
         // List of active Karts and their info
-        private List<KartStats> KartList = new List<KartStats>();
+        private static List<KartStats> KartList = new List<KartStats>();
 
         // Number of required laps
-        private byte Laps_Left, Laps_Right, Laps_Total;
+        private static byte Laps_Left, Laps_Right, Laps_Total;
 
         public Server()
         {

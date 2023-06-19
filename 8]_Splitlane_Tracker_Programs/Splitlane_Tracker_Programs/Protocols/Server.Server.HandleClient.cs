@@ -8,18 +8,7 @@ namespace XKarts.Server
 {
     public partial class Server
     {
-        static string HandleGet(string info)
-        {
-            log.log($"HandleGet: {info}");
-            return "No information to show";
-        }
-
-        static void HandlePut(string info)
-        {
-            log.log($"HandlePut: {info}");
-        }
-
-        static void HandleClient(TcpClient client)
+        private static void HandleClient(TcpClient client)
         {
             // Get the client stream
             NetworkStream stream = client.GetStream();
@@ -47,12 +36,12 @@ namespace XKarts.Server
                 log.log($"PUT request data: {requestData}");
 
                 // TODO: Handle the PUT request as needed
-                HandlePut(requestData);
+                HandlePut(requestPage,requestData);
             }
             else if (requestMethod == "GET")
             {
                 // TODO: Handle the GET request as needed
-                string information = HandleGet(requestPage);
+                string information = HandleGet(requestPage, requestPage);
 
                 // Send a response to the client
                 string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
