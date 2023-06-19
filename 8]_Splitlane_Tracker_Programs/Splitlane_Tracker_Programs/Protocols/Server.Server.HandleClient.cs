@@ -2,8 +2,9 @@
 using System.Net;
 using XKarts;
 using System.Text;
+using Serilog;
 
-namespace Server
+namespace XKarts.Server
 {
     public partial class Server
     {

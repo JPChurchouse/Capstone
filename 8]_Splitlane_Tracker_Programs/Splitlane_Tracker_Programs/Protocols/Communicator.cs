@@ -9,6 +9,13 @@ using System.Net.Http;
 
 namespace XKarts.Comms
 {
+    public static class Constants
+    {
+        public static string HostName = "Splitlane_Server.local";
+        public static int PortNum = 5000;
+
+    }
+    
     public struct Parameters
     {
         public string WhoAmI { get; set; }
@@ -18,7 +25,7 @@ namespace XKarts.Comms
 
     public class Communicator
     {
-        Communicator(Parameters @params, bool keep_open = false)
+        public Communicator(Parameters @params, bool keep_open = false)
         {
             Params = @params;
             WebSocket = keep_open;

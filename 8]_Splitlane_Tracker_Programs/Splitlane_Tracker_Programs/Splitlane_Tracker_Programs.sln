@@ -3,12 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33712.159
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlatform", "Creator_Test\TestPlatform.csproj", "{DA78A109-8F58-44B7-93B0-4BC103F5A7B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPlatform", "Creator_Test\TestPlatform.csproj", "{DA78A109-8F58-44B7-93B0-4BC103F5A7B4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E6EC17E0-5B06-4B00-BEBF-FC031C3560EE} = {E6EC17E0-5B06-4B00-BEBF-FC031C3560EE}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protocols", "Protocols\Protocols.csproj", "{E6EC17E0-5B06-4B00-BEBF-FC031C3560EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Protocols", "Protocols\Protocols.csproj", "{E6EC17E0-5B06-4B00-BEBF-FC031C3560EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "ServerLibrary\Server.csproj", "{98F3350F-790F-44F0-9E28-EC1BF695C611}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +26,10 @@ Global
 		{E6EC17E0-5B06-4B00-BEBF-FC031C3560EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6EC17E0-5B06-4B00-BEBF-FC031C3560EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6EC17E0-5B06-4B00-BEBF-FC031C3560EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98F3350F-790F-44F0-9E28-EC1BF695C611}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98F3350F-790F-44F0-9E28-EC1BF695C611}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98F3350F-790F-44F0-9E28-EC1BF695C611}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98F3350F-790F-44F0-9E28-EC1BF695C611}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
