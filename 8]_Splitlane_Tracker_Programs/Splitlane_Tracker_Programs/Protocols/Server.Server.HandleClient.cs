@@ -33,10 +33,10 @@ namespace XKarts.Server
                 // Extract the data from the request (assuming the data is in the body)
                 int bodyIndex = Array.IndexOf(requestLines, "\r");
                 string requestData = string.Join("\n", requestLines, bodyIndex + 1, requestLines.Length - bodyIndex - 1);
-                log.log($"PUT request data: {requestData}");
+                log.log($"POST request data: {requestData}");
 
                 // TODO: Handle the PUT request as needed
-                HandlePut(requestPage,requestData);
+                HandlePost(requestPage,requestData);
             }
             else if (requestMethod == "GET")
             {

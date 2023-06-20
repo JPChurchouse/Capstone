@@ -13,4 +13,10 @@ namespace XKarts.Comms
         ClearRaceInfo,
         KartDetected
     }
+    public enum Request
+    {
+        RaceStatsAll,
+        RaceStatsSingle,
+        Display
+    }
 }

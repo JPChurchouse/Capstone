@@ -29,48 +29,54 @@ namespace XKarts.Server
         public Colour getColour() { return Colour; }
 
         // Counting
-        private byte LaneLeft = 0;
-        private byte LaneRight = 0;
-        private ulong Last = 0;
+        private byte NumLeft = 0;
+        private byte NumRight = 0;
+        private ulong LastDetect = 0;
 
         public byte addLap(Lane lane)
         {
-            Last = (ulong)DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            LastDetect = (ulong)DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
             switch (lane)
             {
                 case Lane.Left:
-                    return ++LaneLeft;
+                    return ++NumLeft;
 
                 case Lane.Right:
-                    return ++LaneRight;
+                    return ++NumRight;
 
                 default:
-                    Last = 0;
+                    LastDetect = 0;
                     throw new ArgumentOutOfRangeException("Invalid Lane");
             }
         }
 
-        public ulong getLastTime()
+        public ulong getLastDetect()
         {
-            return Last;
+            return LastDetect;
         }
         public byte getNumLaps(Lane lane = Lane.Total)
         {
             switch (lane)
             {
                 case Lane.Total:
-                    return (byte)(LaneLeft + LaneRight);
+                    return (byte)(NumLeft + NumRight);
 
                 case Lane.Left:
-                    return LaneLeft;
+                    return NumLeft;
 
                 case Lane.Right:
-                    return LaneRight;
+                    return NumRight;
 
                 default:
                     throw new ArgumentOutOfRangeException("Invalid Lane");
             }
+        }
+
+        public string getStats()
+        {
+            // ID,Colour,Left,Right,Time
+            return $"{ID},{Colour},{NumLeft},{NumRight},{LastDetect}";
         }
     }
 }
