@@ -9,10 +9,10 @@ namespace XKarts.Server
 {
     public partial class Server
     {
-        public static void InitRace(string json)
+        public static void ImportRace(string json)
         {
             log.log("Init race");
-            Creator.Race import_info = new Creator.Race(Json: json);
+            RaceInfo.Race import_info = new RaceInfo.Race(json: json);
 
             // Import Karts from creator format to server format
             KartList.Clear();
@@ -21,15 +21,15 @@ namespace XKarts.Server
                 KartList.Add(new KartStats(kart));
             }
 
-            Laps_Left = import_info.Laps_Left;
-            Laps_Right = import_info.Laps_Right;
-            Laps_Total = import_info.Laps_Total;
+            ReqLaps_Left = import_info.ReqLaps_Left;
+            ReqLaps_Right = import_info.ReqLaps_Right;
+            ReqLaps_Total = import_info.ReqLaps_Total;
 
             log.log("Init race complete");
 
 
             log.log($"\nRace info as follows:");
-            log.log($"Numer laps L R T: {Laps_Left} {Laps_Right} {Laps_Total}");
+            log.log($"Numer laps L R T: {ReqLaps_Left} {ReqLaps_Right} {ReqLaps_Total}");
             foreach(KartStats kart in KartList)
             {
                 log.log($"KartInfo ID: {kart.getID()} Colour: {kart.getColour()}");
@@ -37,6 +37,34 @@ namespace XKarts.Server
             log.log("---\n");
 
             UpdateSubscribers();
+        }
+
+        public static string ExportRace()
+        {
+            List<RaceInfo.Kart> myList = new List<RaceInfo.Kart>();
+            
+            foreach (var kart in KartList)
+            {
+                RaceInfo.Kart myKart = 
+                    new RaceInfo.Kart(
+                        kart.getID(),
+                        kart.getColour(),
+                        kart.getNumLaps(Identifier.Lane.Left),
+                        kart.getNumLaps(Identifier.Lane.Right)
+                    );
+                
+                myList.Add(myKart);
+            }
+
+            RaceInfo.Race myRace = 
+                new RaceInfo.Race(
+                    myList,
+                    ReqLaps_Left,
+                    ReqLaps_Right,
+                    ReqLaps_Total
+                );
+
+            return myRace.GenerateJsonString();
         }
     }
 }

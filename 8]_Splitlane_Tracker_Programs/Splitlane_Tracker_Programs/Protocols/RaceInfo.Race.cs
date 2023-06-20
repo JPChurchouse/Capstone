@@ -6,44 +6,44 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace XKarts.Creator
+namespace XKarts.RaceInfo
 {
     public class Race
     {
         // Public list to hold the info on all karts in the race
-        public List<Identifier.Kart> KartList = new List<Identifier.Kart>();
+        public List<Kart> KartList = new List<Kart>();
 
         // Bytes to hold the required number of laps
-        public byte Laps_Left, Laps_Right, Laps_Total;
+        public byte ReqLaps_Left, ReqLaps_Right, ReqLaps_Total;
 
         /// <summary>
         /// Create a race with the required info
         /// </summary>
-        /// <param name="List"> List of Karts in the race [optional] </param>
-        /// <param name="Left"> Required uses of Left lane [optional] </param>
-        /// <param name="Right"> Required uses of Right lane [optional] </param>
-        /// <param name="Total"> Required Total laps [optional] </param>
-        /// <param name="Json"> Populate from JSON [optional - overrides other params] </param>
+        /// <param name="list"> List of Karts in the race [optional] </param>
+        /// <param name="left"> Required uses of Left lane [optional] </param>
+        /// <param name="right"> Required uses of Right lane [optional] </param>
+        /// <param name="total"> Required Total laps [optional] </param>
+        /// <param name="json"> Populate from JSON [optional - overrides other params] </param>
         public Race(
-            List<Identifier.Kart>? List = null,
-            byte Left = 0,
-            byte Right = 0,
-            byte Total = 0,
-            string? Json = null)
+            List<Kart>? list = null,
+            byte left = 0,
+            byte right = 0,
+            byte total = 0,
+            string? json = null)
         {
             // First check if Json is available
-            if (Json != null)
+            if (json != null)
             {
-                PopulateFromJson(Json);
+                PopulateFromJson(json);
                 return;
             }
 
             // Check if list is avail and apply
-            if (List != null) KartList = List;
+            if (list != null) KartList = list;
 
-            Laps_Left = Left;
-            Laps_Right = Right;
-            Laps_Total = Total;
+            ReqLaps_Left = left;
+            ReqLaps_Right = right;
+            ReqLaps_Total = total;
         }
 
 
@@ -56,13 +56,13 @@ namespace XKarts.Creator
         /// <param name="clear"> 
         /// Clear the list first? [false] 
         /// </param>
-        public void AddKart(Identifier.Kart kart, bool clear = false)
+        public void AddKart(Kart kart, bool clear = false)
         {
             if (clear) KartList.Clear();
 
             KartList.Add(kart);
         }
-        public void AddKart(List<Identifier.Kart> kartList, bool clear = false)
+        public void AddKart(List<Kart> kartList, bool clear = false)
         {
             if (clear) KartList.Clear();
 
@@ -75,9 +75,9 @@ namespace XKarts.Creator
         public void Reset()
         {
             KartList.Clear();
-            Laps_Left = 0;
-            Laps_Right = 0;
-            Laps_Total = 0;
+            ReqLaps_Left = 0;
+            ReqLaps_Right = 0;
+            ReqLaps_Total = 0;
         }
 
         /// <summary>
@@ -124,9 +124,9 @@ namespace XKarts.Creator
             KartList = list;
                 
             // Assign other race info
-            Laps_Left = temp.Laps_Left;
-            Laps_Right = temp.Laps_Right;
-            Laps_Total = temp.Laps_Total;
+            ReqLaps_Left = temp.ReqLaps_Left;
+            ReqLaps_Right = temp.ReqLaps_Right;
+            ReqLaps_Total = temp.ReqLaps_Total;
         }
     }
 }

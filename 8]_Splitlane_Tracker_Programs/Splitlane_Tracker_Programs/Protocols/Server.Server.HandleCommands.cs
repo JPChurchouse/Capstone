@@ -76,7 +76,7 @@ namespace XKarts.Server
                 return "Unable to find information";
             }
 
-            string ret = $"{Laps_Left},{Laps_Right},{Laps_Total}";
+            string ret = $"{ReqLaps_Left},{ReqLaps_Right},{ReqLaps_Total}";
             foreach (KartStats kart in KartList)
             {
                 ret += $"\r\n{kart.getStats()}";
@@ -98,7 +98,7 @@ namespace XKarts.Server
             {
                 case Comms.Command.NewRaceInfo:
                     log.log("Case: NewRaceInfo");
-                    InitRace(info);
+                    ImportRace(info);
                     break;
 
                 case Comms.Command.StopRace:
@@ -161,6 +161,11 @@ namespace XKarts.Server
                 // send them info
                 // Subber.SendInfo(info);
             }
+        }
+
+        private static string ExportCurrentState()
+        {
+            return "Not implemented";
         }
 
         #endregion

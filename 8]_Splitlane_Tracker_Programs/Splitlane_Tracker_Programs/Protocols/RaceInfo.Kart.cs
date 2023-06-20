@@ -4,22 +4,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XKarts.Identifier
+namespace XKarts.RaceInfo
 {
     public class Kart
     {
         public byte ID;
-        public Colour Colour;
+        public Identifier.Colour Colour;
+
+        public byte Laps_Left, Laps_Right;
 
         /// <summary>
         /// Public struct for creating and sharing Kart informaion.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="colour"></param>
-        public Kart(byte id, Colour colour)
+        public Kart(byte id, Identifier.Colour colour, byte left = 0, byte right = 0)
         {
             ID = id;
             Colour = colour;
+            Laps_Left = left;
+            Laps_Right = right;
         }
     }
 }

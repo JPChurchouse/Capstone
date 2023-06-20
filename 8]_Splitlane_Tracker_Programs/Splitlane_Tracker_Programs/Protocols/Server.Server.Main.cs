@@ -17,7 +17,7 @@ namespace XKarts.Server
         private static List<KartStats> KartList = new List<KartStats>();
 
         // Number of required laps
-        private static byte Laps_Left, Laps_Right, Laps_Total;
+        private static byte ReqLaps_Left, ReqLaps_Right, ReqLaps_Total;
 
         public Server()
         {

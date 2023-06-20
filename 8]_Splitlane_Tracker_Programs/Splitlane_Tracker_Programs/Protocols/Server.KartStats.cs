@@ -10,28 +10,33 @@ namespace XKarts.Server
     // Kart info for server
     public class KartStats
     {
-        public KartStats(Kart k)
+        public KartStats(RaceInfo.Kart k)
         {
             ID = k.ID;
             Colour = k.Colour;
+            NumLeft = k.Laps_Left;
+            NumRight = k.Laps_Right;
+            LastDetect = 0;
         }
         public KartStats(byte id, Colour colour)
         {
             ID = id;
             Colour = colour;
+            NumLeft = 0;
+            NumRight = 0;
+            LastDetect = 0;
         }
 
-        // Identity
+        // IDENTIFICATION
         private byte ID;
         private Colour Colour;
 
         public byte getID() { return ID; }
         public Colour getColour() { return Colour; }
 
-        // Counting
-        private byte NumLeft = 0;
-        private byte NumRight = 0;
-        private ulong LastDetect = 0;
+        // LAP COUNTING
+        private byte NumLeft, NumRight;
+        private ulong LastDetect;
 
         public byte addLap(Lane lane)
         {
@@ -77,6 +82,18 @@ namespace XKarts.Server
         {
             // ID,Colour,Left,Right,Time
             return $"{ID},{Colour},{NumLeft},{NumRight},{LastDetect}";
+        }
+
+        public RaceInfo.Kart getRaceInfoKart()
+        {
+            RaceInfo.Kart kart = 
+                new RaceInfo.Kart(
+                    ID, 
+                    Colour,
+                    NumLeft, 
+                    NumRight);
+
+            return kart;
         }
     }
 }
