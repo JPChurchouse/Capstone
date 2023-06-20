@@ -36,6 +36,7 @@ namespace XKarts.Server
             }
             log.log("---\n");
 
+            UpdateSubscribers();
         }
     }
 }

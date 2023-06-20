@@ -125,18 +125,44 @@ namespace XKarts.Server
             string _colour = info_split[0];
             string _lane = info_split[1];
 
-            Identifier.Colour colour = (Identifier.Colour) Enum.Parse(typeof(Identifier.Colour), _colour);
-            Identifier.Lane lane = (Identifier.Lane) Enum.Parse(typeof(Identifier.Lane), _lane);
+            Identifier.Colour colour;
+            Identifier.Lane lane;
 
-            foreach (KartStats kart in KartList)
+            if (
+                Enum.TryParse(_colour, out colour) &&
+                Enum.TryParse(_lane, out lane) )
             {
-                if (kart.getColour() == colour)
+                foreach (KartStats kart in KartList)
                 {
-                    kart.addLap(lane);
-                    break;
+                    if (kart.getColour() == colour)
+                    {
+                        kart.addLap(lane);
+                        UpdateSubscribers(kart.getStats());
+                        break;
+                    }
                 }
             }
         }
+        #endregion
+
+        #region Subscribers
+        // Update all subscribers
+        private static List<string> Subscribers = new List<string>();
+        private static void UpdateSubscribers(string? info = null)
+        {
+            return;// save some resources while not impleneted.
+            if (info == null)
+            {
+                info = GetRaceStats();
+            }
+
+            foreach (string Subber in Subscribers)
+            {
+                // send them info
+                // Subber.SendInfo(info);
+            }
+        }
+
         #endregion
     }
 }
