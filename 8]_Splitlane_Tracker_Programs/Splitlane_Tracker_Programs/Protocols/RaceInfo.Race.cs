@@ -23,27 +23,20 @@ namespace XKarts.RaceInfo
         /// <param name="left"> Required uses of Left lane [optional] </param>
         /// <param name="right"> Required uses of Right lane [optional] </param>
         /// <param name="total"> Required Total laps [optional] </param>
-        /// <param name="json"> Populate from JSON [optional - overrides other params] </param>
         public Race(
-            List<Kart>? list = null,
+            List<Kart> list,
             byte left = 0,
             byte right = 0,
-            byte total = 0,
-            string? json = null)
+            byte total = 0)
         {
-            // First check if Json is available
-            if (json != null)
-            {
-                PopulateFromJson(json);
-                return;
-            }
-
-            // Check if list is avail and apply
-            if (list != null) KartList = list;
-
+            KartList = list;
             ReqLaps_Left = left;
             ReqLaps_Right = right;
             ReqLaps_Total = total;
+        }
+        public Race(string json)
+        {
+            PopulateFromJson(json);
         }
 
 
@@ -88,11 +81,6 @@ namespace XKarts.RaceInfo
         /// </returns>
         public string GenerateJsonString()
         {
-            if (!KartList.Any())
-            {
-                throw new ArgumentNullException("No Karts assigned to race");
-            }
-
             return JsonConvert.SerializeObject(this);
         }
 
@@ -108,7 +96,7 @@ namespace XKarts.RaceInfo
         public void PopulateFromJson(string data)
         {
             // Ensure the list is empty
-            KartList.Clear();
+            Reset();
 
             // Attempt to Deserialise the provided data and put it in the list
             var temp = 

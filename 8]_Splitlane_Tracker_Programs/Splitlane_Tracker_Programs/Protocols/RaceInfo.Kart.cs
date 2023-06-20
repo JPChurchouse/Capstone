@@ -8,10 +8,8 @@ namespace XKarts.RaceInfo
 {
     public class Kart
     {
-        public byte ID;
+        public byte ID, Laps_Left, Laps_Right;
         public Identifier.Colour Colour;
-
-        public byte Laps_Left, Laps_Right;
 
         /// <summary>
         /// Public struct for creating and sharing Kart informaion.

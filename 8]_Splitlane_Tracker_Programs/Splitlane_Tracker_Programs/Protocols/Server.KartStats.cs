@@ -14,16 +14,16 @@ namespace XKarts.Server
         {
             ID = k.ID;
             Colour = k.Colour;
-            NumLeft = k.Laps_Left;
-            NumRight = k.Laps_Right;
+            CountLap_Left = k.Laps_Left;
+            CountLap_Right = k.Laps_Right;
             LastDetect = 0;
         }
         public KartStats(byte id, Colour colour)
         {
             ID = id;
             Colour = colour;
-            NumLeft = 0;
-            NumRight = 0;
+            CountLap_Left = 0;
+            CountLap_Right = 0;
             LastDetect = 0;
         }
 
@@ -35,7 +35,7 @@ namespace XKarts.Server
         public Colour getColour() { return Colour; }
 
         // LAP COUNTING
-        private byte NumLeft, NumRight;
+        private byte CountLap_Left, CountLap_Right;
         private ulong LastDetect;
 
         public byte addLap(Lane lane)
@@ -45,10 +45,10 @@ namespace XKarts.Server
             switch (lane)
             {
                 case Lane.Left:
-                    return ++NumLeft;
+                    return ++CountLap_Left;
 
                 case Lane.Right:
-                    return ++NumRight;
+                    return ++CountLap_Right;
 
                 default:
                     LastDetect = 0;
@@ -60,18 +60,19 @@ namespace XKarts.Server
         {
             return LastDetect;
         }
-        public byte getNumLaps(Lane lane = Lane.Total)
+
+        public byte getLapCount(Lane lane = Lane.Total)
         {
             switch (lane)
             {
                 case Lane.Total:
-                    return (byte)(NumLeft + NumRight);
+                    return (byte)(CountLap_Left + CountLap_Right);
 
                 case Lane.Left:
-                    return NumLeft;
+                    return CountLap_Left;
 
                 case Lane.Right:
-                    return NumRight;
+                    return CountLap_Right;
 
                 default:
                     throw new ArgumentOutOfRangeException("Invalid Lane");
@@ -81,7 +82,12 @@ namespace XKarts.Server
         public string getStats()
         {
             // ID,Colour,Left,Right,Time
-            return $"{ID},{Colour},{NumLeft},{NumRight},{LastDetect}";
+            return 
+                $"{ID}," +
+                $"{Colour}," +
+                $"{CountLap_Left}," +
+                $"{CountLap_Right}," +
+                $"{LastDetect}";
         }
 
         public RaceInfo.Kart getRaceInfoKart()
@@ -90,8 +96,8 @@ namespace XKarts.Server
                 new RaceInfo.Kart(
                     ID, 
                     Colour,
-                    NumLeft, 
-                    NumRight);
+                    CountLap_Left, 
+                    CountLap_Right);
 
             return kart;
         }

@@ -153,7 +153,7 @@ namespace XKarts.Server
             return;// save some resources while not impleneted.
             if (info == null)
             {
-                info = GetRaceStats();
+                info = ExportCurrentState();
             }
 
             foreach (string Subber in Subscribers)

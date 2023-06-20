@@ -11,8 +11,8 @@ namespace XKarts.Server
     {
         public static void ImportRace(string json)
         {
-            log.log("Init race");
-            RaceInfo.Race import_info = new RaceInfo.Race(json: json);
+            log.log("Import race");
+            RaceInfo.Race import_info = new RaceInfo.Race(json);
 
             // Import Karts from creator format to server format
             KartList.Clear();
@@ -41,30 +41,22 @@ namespace XKarts.Server
 
         public static string ExportRace()
         {
-            List<RaceInfo.Kart> myList = new List<RaceInfo.Kart>();
+            List<RaceInfo.Kart> list = new List<RaceInfo.Kart>();
             
             foreach (var kart in KartList)
             {
-                RaceInfo.Kart myKart = 
-                    new RaceInfo.Kart(
-                        kart.getID(),
-                        kart.getColour(),
-                        kart.getNumLaps(Identifier.Lane.Left),
-                        kart.getNumLaps(Identifier.Lane.Right)
-                    );
-                
-                myList.Add(myKart);
+                list.Add(kart.getRaceInfoKart());
             }
 
-            RaceInfo.Race myRace = 
+            RaceInfo.Race race = 
                 new RaceInfo.Race(
-                    myList,
+                    list,
                     ReqLaps_Left,
                     ReqLaps_Right,
                     ReqLaps_Total
                 );
 
-            return myRace.GenerateJsonString();
+            return race.GenerateJsonString();
         }
     }
 }
