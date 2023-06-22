@@ -16,6 +16,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using XKarts;
 using XKarts.Logging;
+using XKarts.Identifier;
+using System.Net.Sockets;
 
 namespace TestPlatform
 {
@@ -24,7 +26,7 @@ namespace TestPlatform
     /// </summary>
     public partial class MainWindow : Window
     {
-        Logger steve = new Logger();
+        private static Logger log = new Logger();
         public MainWindow()
         {
             InitializeComponent();
@@ -33,12 +35,39 @@ namespace TestPlatform
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var colour = XKarts.Identifier.Colour.Red;
+            var colour = Colour.Red;
             ulong integer = 0xFF0000;
 
-            steve.log($"Testing RED: integer=={integer}, colour=={colour}, colasint=={(ulong)colour},equal=={(ulong)colour==integer}");
+            log.log($"Testing RED: integer=={integer}, colour=={colour}, colasint=={(ulong)colour},equal=={(ulong)colour==integer}");
 
-            steve.open();
+            log.open();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            var steve = new XKarts.Creator.Race();
+            steve.AddKart(new Kart(01, Colour.Red));
+            steve.AddKart(new Kart(02, Colour.Green));
+            steve.AddKart(new Kart(03, Colour.Blue));
+            steve.Laps_Left = 05;
+            steve.Laps_Right = 15;
+
+            string JSON = steve.GenerateJsonString();
+            log.log(JSON);
+
+            //SendPostRequest( XKarts.Comms.Constants.IpAddress.ToString(), XKarts.Comms.Constants.PortNum, JSON);
+            XKarts.Comms.Communicator.PostToServer(log, XKarts.Comms.Command.NewRaceInfo, JSON);
+
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
+
         }
     }
+
 }
