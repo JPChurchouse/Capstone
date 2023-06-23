@@ -10,9 +10,9 @@ namespace XKarts.Mqtt
     {
         public Packet(string tpc, string msg)
         {
-            message = msg;
+            payload = msg;
             topic = tpc;
         }
-        public string topic, message;
+        public string topic, payload;
     }
 }

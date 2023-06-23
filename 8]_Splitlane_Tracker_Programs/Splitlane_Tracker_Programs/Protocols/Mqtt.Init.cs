@@ -15,25 +15,45 @@ namespace XKarts.Mqtt
     {
         // Create a new MQTT client.
         private IMqttClient mqttClient = new MqttFactory().CreateMqttClient();
-        private string name, address;
+        private string client_name, broker_address, will_topic, will_payload;
+        
+        // OnReceived user handler
         public delegate void OnReceivedEventHandler(Packet packet);
         public event OnReceivedEventHandler? OnReceived;
 
-        public Mqtt(string name, string address)
+        // OnConnected user handler
+        public delegate void OnConnectedEventHandler();
+        public event OnConnectedEventHandler? OnConnected;
+
+        // OnDisonnected user handler
+        public delegate void OnDisonnectedEventHandler();
+        public event OnDisonnectedEventHandler? OnDisonnected;
+
+        public Mqtt(string client_name, string broker_address, string will_topic, string will_payload)
         {
-            this.name = name;
-            this.address = address;
+            this.client_name = client_name;
+            this.broker_address = broker_address;
+            this.will_topic = will_topic;
+            this.will_payload = will_payload;
 
             _ = Connect();
         }
 
         private async Task Connect()
         {
+            var will = new MqttApplicationMessage()
+            {
+                Topic = will_topic,
+                Payload = Encoding.UTF8.GetBytes(will_payload),
+                QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce,
+                Retain = true
+            };
+
             // Create TCP based options using the builder.
             var options = new MqttClientOptionsBuilder()
-                .WithClientId(name)
-                .WithTcpServer(address)
-                .WithCleanSession()
+                .WithClientId(client_name)
+                .WithTcpServer(broker_address)
+                .WithWillMessage(will)
                 .Build();
 
             mqttClient.UseDisconnectedHandler(On_Disconnect);
@@ -43,49 +63,42 @@ namespace XKarts.Mqtt
             await mqttClient.ConnectAsync(options, CancellationToken.None);
         }
 
-        private async Task On_Disconnect(MqttClientDisconnectedEventArgs args)
+
+        private Task On_Disconnect(MqttClientDisconnectedEventArgs args)
         {
-            Console.WriteLine("### DISCONNECTED FROM SERVER ###");
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            try
-            {
-                await Connect();
-            }
-            catch
-            {
-                Console.WriteLine("### RECONNECTING FAILED ###");
-            }
-        }
-
-        private Task On_Receive(MqttApplicationMessageReceivedEventArgs args)
-        {
-            Console.WriteLine("### RECEIVED APPLICATION MESSAGE ###");
-            Console.WriteLine($"+ Topic = {args.ApplicationMessage.Topic}");
-            Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(args.ApplicationMessage.Payload)}");
-            //Console.WriteLine($"+ QoS = {args.ApplicationMessage.QualityOfServiceLevel}");
-            //Console.WriteLine($"+ Retain = {args.ApplicationMessage.Retain}");
-            Console.WriteLine();
-
-            var pack = new Packet(args.ApplicationMessage.Topic, Encoding.UTF8.GetString(args.ApplicationMessage.Payload));
-            OnReceived?.Invoke(pack);
+            OnDisonnected?.Invoke();
 
             return Task.CompletedTask;
         }
 
-        private async Task On_Connected(MqttClientConnectedEventArgs args)
+        private Task On_Receive(MqttApplicationMessageReceivedEventArgs args)
         {
-            Console.WriteLine("### CONNECTED WITH SERVER ###");
+            OnReceived?.Invoke(
+                new Packet(
+                    args.ApplicationMessage.Topic, 
+                    Encoding.UTF8.GetString(args.ApplicationMessage.Payload)));
 
-            await SubscribeTo("test/topic");
+            return Task.CompletedTask;
+        }
+
+        private Task On_Connected(MqttClientConnectedEventArgs args)
+        {
+            OnConnected?.Invoke();
+
+            return Task.CompletedTask;
         }
 
         private async Task SubscribeTo(string topic)
         {
             if (!mqttClient.IsConnected) return;
 
-            await mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(topic).Build());
-            Console.WriteLine("### SUBSCRIBED ###");
+            await mqttClient.SubscribeAsync(
+                new MqttTopicFilterBuilder()
+                .WithTopic(topic)
+                .WithAtLeastOnceQoS()
+                .WithRetainAsPublished()
+                .Build());
+            //Console.WriteLine("### SUBSCRIBED ###");
         }
 
         private async Task Publish(string topic, string message)
@@ -95,6 +108,8 @@ namespace XKarts.Mqtt
             var packet = new MqttApplicationMessageBuilder()
                 .WithTopic(topic)
                 .WithPayload(message)
+                .WithAtLeastOnceQoS()
+                .WithRetainFlag()
                 .Build();
 
             await mqttClient.PublishAsync(packet, CancellationToken.None);
@@ -111,7 +126,16 @@ namespace XKarts.Mqtt
         }
         public void Send(Packet packet)
         {
-            _ = Publish(packet.topic, packet.message);
+            _ = Publish(packet.topic, packet.payload);
+        }
+        public void Subscibe(string topic)
+        {
+            _ = SubscribeTo(topic);
+        }
+
+        public void Disconnect()
+        {
+            mqttClient.DisconnectAsync(CancellationToken.None);
         }
     }
 }
