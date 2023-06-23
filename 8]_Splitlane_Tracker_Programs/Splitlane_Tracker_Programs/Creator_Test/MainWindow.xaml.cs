@@ -49,12 +49,11 @@ namespace TestPlatform
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            var steve = new XKarts.Creator.Race();
-            steve.AddKart(new Kart(01, Colour.Red));
-            steve.AddKart(new Kart(02, Colour.Green));
-            steve.AddKart(new Kart(03, Colour.Blue));
-            steve.Laps_Left = 05;
-            steve.Laps_Right = 15;
+            List<XKarts.RaceInfo.Kart> list = new List<XKarts.RaceInfo.Kart> ();
+            list.Add(new XKarts.RaceInfo.Kart(03, Colour.Blue));
+            list.Add(new XKarts.RaceInfo.Kart(01, Colour.Red));
+            list.Add(new XKarts.RaceInfo.Kart(02, Colour.Green));
+            var steve = new XKarts.RaceInfo.Race(list,05,15,0);
 
             string JSON = steve.GenerateJsonString();
             log.log(JSON);
