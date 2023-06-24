@@ -23,4 +23,24 @@ namespace XKarts.Identifier
         Pink    = 0xFF0080,
         White   = 0xFFFFFF
     }
+
+    public struct Colours
+    {
+        public static List<string> List = new List<string>()
+        {
+            "0xF00",
+            "0xC40",
+            "0x880",
+            "0x4C0",
+            "0x0F0",
+            "0x0C4",
+            "0x088",
+            "0x04C",
+            "0x00F",
+            "0x40C",
+            "0x808",
+            "0xC04",
+            "0xF00"
+        };
+    }
 }
