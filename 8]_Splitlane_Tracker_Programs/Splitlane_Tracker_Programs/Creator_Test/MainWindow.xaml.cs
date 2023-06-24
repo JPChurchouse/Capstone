@@ -14,10 +14,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using XKarts;
-using XKarts.Logging;
-using XKarts.Identifier;
+using SplitLaneTracker.Services;
 using System.Net.Sockets;
+using SplitLaneTracker.Services.Tracking;
 
 namespace TestPlatform
 {
@@ -26,46 +25,50 @@ namespace TestPlatform
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static Logger log = new Logger();
+        private static SplitLaneTracker.Services.Logging.Logger log = new SplitLaneTracker.Services.Logging.Logger();
         public MainWindow()
         {
             InitializeComponent();
         }
+        private string json = "asdf";
 
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var colour = Colour.Red;
-            ulong integer = 0xFF0000;
+            Detection detection = new Detection(1687638447, "red","left");
+            json = detection.GetJson();
 
-            log.log($"Testing RED: integer=={integer}, colour=={colour}, colasint=={(ulong)colour},equal=={(ulong)colour==integer}");
-
+            log.log($"Time:{detection.Time},Colour:{detection.Colour},Lane:{detection.Lane}");
+            log.log(json);
             log.open();
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            List<XKarts.RaceInfo.Kart> list = new List<XKarts.RaceInfo.Kart> ();
-            list.Add(new XKarts.RaceInfo.Kart(03, Colour.Blue));
-            list.Add(new XKarts.RaceInfo.Kart(01, Colour.Red));
-            list.Add(new XKarts.RaceInfo.Kart(02, Colour.Green));
-            var steve = new XKarts.RaceInfo.Race(list,05,15,0);
+            Detection det = new Detection(json);
 
-            string JSON = steve.GenerateJsonString();
-            log.log(JSON);
-
-            //SendPostRequest( XKarts.Comms.Constants.IpAddress.ToString(), XKarts.Comms.Constants.PortNum, JSON);
-            XKarts.Comms.Communicator.PostToServer(log, XKarts.Comms.Command.NewRaceInfo, JSON);
-
+            log.log($"Time:{det.Time},Colour:{det.Colour},Lane:{det.Lane}");
+            log.open();
         }
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
+            string asdf = @"{""KartList"":[{""Colour"":""red"",""Number"":17,""DetectionList"":[]},{""Colour"":""green"",""Number"":23,""DetectionList"":[]},{""Colour"":""blue"",""Number"":9,""DetectionList"":[]}],""RequiredLaps"":[8,8,20]}";
 
+            SplitLaneTracker.Services.Tracking.Race.Race race = new SplitLaneTracker.Services.Tracking.Race.Race(asdf);
+
+            if (race == null)
+            {
+                log.log("failed to convert to obj");
+                return;
+            }
+
+            log.log($"Laps: {race.RequiredLaps[0]},{race.RequiredLaps[1]},{race.RequiredLaps[2]}");
+            foreach (Kart kart in race.KartList)
+            {
+                log.log($"{kart.Number},{kart.Colour}");
+            }
+            log.open();
         }
     }
 

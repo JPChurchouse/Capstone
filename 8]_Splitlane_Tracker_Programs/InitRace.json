@@ -1,0 +1,21 @@
+{
+    "KartList": [
+        {
+            "Colour": "red",
+            "Number": 17
+        },
+        {
+            "Colour": "green",
+            "Number": 23
+        },
+        {
+            "Colour": "blue",
+            "Number": 9
+        }
+    ],
+    "RequiredLaps": [
+        8,
+        8,
+        20
+    ]
+}
