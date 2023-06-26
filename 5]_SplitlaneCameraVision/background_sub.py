@@ -37,7 +37,7 @@ while(1):
 
         cv2.imshow('threshold', img)
         cv2.imshow('edge', edge)
-
+    
     # after removing noise
     #cv2.imshow('GMG', fgmask)
       

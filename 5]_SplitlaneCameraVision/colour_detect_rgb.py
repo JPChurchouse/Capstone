@@ -22,7 +22,9 @@ def main():
     #fourcc = cv.CV_FOURCC('m', 'p', '4', 'v')
     #video_writer = cv.VideoWriter('output.avi', -1, 20.0, (640,480))
     frame_num = 0
-
+    avg_g = 0
+    avg_b = 0
+    avg_r = 0
     while True:
         ret, frame = camera.read()
 
@@ -36,38 +38,42 @@ def main():
 
         ## convert to greyscale
         blur = cv.GaussianBlur(frame, (31, 31), 0)
-        
-        #gray = cv.cvtColor(blur, cv.COLOR_BGR2GRAY)
-        #edge = cv.Canny(gray, 5, 51) 
-        #circles = cv.HoughCircles(gray, cv.HOUGH_GRADIENT, 1.4, minDist = 100, param1 = 120, param2 = 20, minRadius = 50, maxRadius = 150)
-
-       # if circles is not None:
-            #get the array circle coordinates and radii as integers 
-       #     circles = np.round(circles[0, :]).astype("int")
-
-            #iterate through each circle
-        #    for (x, y, r) in circles:
-                #checks for "ghost" apples and only draws circle if the hough circle found is a negative part of the mask
-        #        cv.circle(frame, (x, y), r, (0, 0, 255), 3)
-                        
+        hsv = cv.cvtColor(blur, cv.COLOR_BGR2HSV)
+        frame_num = frame_num + 1                
         # Using cv2.putText() method
         x = 50
         y = 200
-        cb, cg, cr = blur[x, y]
-        frame = cv.putText(frame, f"Colour = {(cb, cg, cr)}", (50,50), cv.FONT_HERSHEY_SIMPLEX, 
+        size = 20
+        
+        ch, cs, cval = 0, 0, 0
+        cb, cg, cr = 0, 0, 0
+
+        for xc in range(x, x+size):
+            for yc in range(y+1,y+size):
+                b, g, r = blur[xc, yc]
+                cb = cb + b
+                cg = cg + g
+                cr = cr + r
+
+        cb = cb/(size*size)
+        cg = cg/(size*size)
+        cr = cr/(size*size)
+
+        if frame_num == 50:
+            avg_b = cb
+            avg_g = cg
+            avg_r = cr
+        elif frame_num > 50:
+            percent = (1/(frame_num-49))
+            avg_b = avg_b*(1-percent) + (cb*percent)
+            avg_g = avg_g*(1-percent) + (cg*percent)
+            avg_r = avg_r*(1-percent) + (cr*percent)
+            frame = cv.putText(frame, f"Colour rgb = {(int(avg_r), int(avg_g), int(avg_b))}", (50,50), cv.FONT_HERSHEY_SIMPLEX, 
                         1, (200, 50, 50), 2, cv.LINE_AA)
-        #video_writer.write(frame)
-        #fg mask
+
         cv.rectangle(frame, (x, y), (x+20, y+20), color = (20, 20, 20), thickness = 2)
         cv.imshow("frame", frame)
-        cv.imshow("blur", blur)
-        #cv.imshow("edge", edge)
-        #cv.imshow("frame", frame)
-        #find brightest moving thing
-        #(minVal, maxVal, minLoc, maxLoc) = cv.minMaxLoc(subbed)
-        #cv.circle(frame, maxLoc, 100, (255, 0, 0), 2)
 
-        #cv.imshow("Light?", frame)
 
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
