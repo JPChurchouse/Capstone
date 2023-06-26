@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SplitLaneTracker.Services.Logging
+namespace SplitlaneTracker.Services.Logging
 {
     public class Logger
     {

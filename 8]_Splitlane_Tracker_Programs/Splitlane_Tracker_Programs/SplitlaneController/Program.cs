@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
-using XKarts;
-using XKarts.Mqtt;
+using SplitLaneTracker.Services.Tracking;
+using SplitLaneTracker.Services.Mqtt;
 
 string client_name = "ConsoleApp";
 string broker_address = "192.168.1.72";

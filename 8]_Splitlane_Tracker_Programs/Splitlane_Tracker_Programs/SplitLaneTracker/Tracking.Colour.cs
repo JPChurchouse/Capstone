@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SplitLaneTracker.Services.Tracking
+namespace SplitlaneTracker.Services.Tracking
 {/*
     public enum Colour
     {

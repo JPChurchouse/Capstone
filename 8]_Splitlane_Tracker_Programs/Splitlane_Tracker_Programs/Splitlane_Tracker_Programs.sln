@@ -10,25 +10,27 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPlatform", "Creator_Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Protocols", "Protocols\Protocols.csproj", "{E6EC17E0-5B06-4B00-BEBF-FC031C3560EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server_TEST", "Server_TEST\Server_TEST.csproj", "{A8D767A3-EBAD-45E2-A102-B7F388D8459D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Display_TEST", "Display_TEST\Display_TEST.csproj", "{13E6760D-7513-40D2-8A08-F1A31A99148F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SplitLaneTracker.Server", "SplitlaneController\SplitLaneTracker.Server.csproj", "{62F0A010-E1B7-48EA-8673-4F923FF1B45E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server_old", "SplitlaneController\server_old.csproj", "{62F0A010-E1B7-48EA-8673-4F923FF1B45E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EB3D3A71-8CBF-4C04-AF1E-4C43F302ABD9}"
 	ProjectSection(SolutionItems) = preProject
+		icons\black.ico = icons\black.ico
+		icons\black.png = icons\black.png
 		icons\blue.ico = icons\blue.ico
 		icons\blue.png = icons\blue.png
 		icons\green.ico = icons\green.ico
 		icons\green.png = icons\green.png
 		icons\red.ico = icons\red.ico
 		icons\red.png = icons\red.png
+		icons\white.ico = icons\white.ico
+		icons\white.png = icons\white.png
 		icons\yellow.ico = icons\yellow.ico
 		icons\yellow.png = icons\yellow.png
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SplitLaneTracker.Services", "SplitLaneTracker\SplitLaneTracker.Services.csproj", "{4140E189-D989-4117-B8E2-9DD19A5B4939}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SplitlaneTracker.Services", "SplitLaneTracker\SplitlaneTracker.Services.csproj", "{4140E189-D989-4117-B8E2-9DD19A5B4939}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SplitlaneTracker.Server", "Server\SplitlaneTracker.Server.csproj", "{636449F4-509A-4089-880B-FCCC5133C235}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,14 +46,6 @@ Global
 		{E6EC17E0-5B06-4B00-BEBF-FC031C3560EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6EC17E0-5B06-4B00-BEBF-FC031C3560EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6EC17E0-5B06-4B00-BEBF-FC031C3560EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A8D767A3-EBAD-45E2-A102-B7F388D8459D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A8D767A3-EBAD-45E2-A102-B7F388D8459D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A8D767A3-EBAD-45E2-A102-B7F388D8459D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A8D767A3-EBAD-45E2-A102-B7F388D8459D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13E6760D-7513-40D2-8A08-F1A31A99148F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13E6760D-7513-40D2-8A08-F1A31A99148F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13E6760D-7513-40D2-8A08-F1A31A99148F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13E6760D-7513-40D2-8A08-F1A31A99148F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{62F0A010-E1B7-48EA-8673-4F923FF1B45E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{62F0A010-E1B7-48EA-8673-4F923FF1B45E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62F0A010-E1B7-48EA-8673-4F923FF1B45E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -60,6 +54,10 @@ Global
 		{4140E189-D989-4117-B8E2-9DD19A5B4939}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4140E189-D989-4117-B8E2-9DD19A5B4939}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4140E189-D989-4117-B8E2-9DD19A5B4939}.Release|Any CPU.Build.0 = Release|Any CPU
+		{636449F4-509A-4089-880B-FCCC5133C235}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{636449F4-509A-4089-880B-FCCC5133C235}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{636449F4-509A-4089-880B-FCCC5133C235}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{636449F4-509A-4089-880B-FCCC5133C235}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

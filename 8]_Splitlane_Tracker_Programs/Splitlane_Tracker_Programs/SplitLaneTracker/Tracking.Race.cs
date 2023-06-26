@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json;
-using SplitLaneTracker.Services.Tracking;
+using SplitlaneTracker.Services.Tracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SplitLaneTracker.Services.Tracking.Race
+namespace SplitlaneTracker.Services.Tracking.Race
 {
     public class Race
     {
@@ -90,6 +90,11 @@ namespace SplitLaneTracker.Services.Tracking.Race
                 return false;
             }
             return true;
+        }
+
+        private long TimeNow()
+        {
+            return DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
     }
 }

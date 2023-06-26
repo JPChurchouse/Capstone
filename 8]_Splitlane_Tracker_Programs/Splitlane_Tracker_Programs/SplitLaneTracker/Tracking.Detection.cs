@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace SplitLaneTracker.Services.Tracking
+namespace SplitlaneTracker.Services.Tracking
 {
     public class Detection
     {
