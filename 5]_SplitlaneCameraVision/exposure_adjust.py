@@ -4,7 +4,7 @@ import sys
 import cv2 as cv
 import numpy as np
 import argparse
-
+import subprocess
 
 
 def main():
@@ -17,7 +17,7 @@ def main():
         print(f"Error:Camera not found!")
         return 1
     
-    exposure = 40
+    exposure = -5
 
     while True:
         ret, frame = camera.read()
@@ -33,11 +33,13 @@ def main():
         #output.write(frame)
 
         if cv.waitKey(1) & 0xFF == ord('u'):
-            exposure = exposure + 5
+            exposure = exposure + 1
             camera.set(cv.CAP_PROP_AUTO_EXPOSURE, exposure)
-        
+            #or depending on camera
+            #subprocess.check_call("v4l2-ctl -d /dev/video0 -c exposure_absolute=40",shell=True)
+
         if cv.waitKey(1) & 0xFF == ord('d'):
-            exposure = exposure - 5
+            exposure = exposure - 1
             camera.set(cv.CAP_PROP_AUTO_EXPOSURE, exposure)
 
         if cv.waitKey(1) & 0xFF == ord('q'):
