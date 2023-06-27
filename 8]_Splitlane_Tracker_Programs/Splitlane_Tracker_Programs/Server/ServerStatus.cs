@@ -7,34 +7,29 @@ using SplitlaneTracker.Services;
 
 namespace SplitlaneTracker.Server
 {
-    internal class ServerStatus
+    #region Ignore
+    [System.ComponentModel.DesignerCategory("")]
+    public class asdf { }
+    #endregion
+    public partial class GUI : Form
     {
-        // OnReceived user handler
-        public delegate void SendMqttHandler(Services.Mqtt.Packet packet);
-        public event SendMqttHandler? SendMqtt;
 
-        private static Services.Logging.Logger log;
-
-        public ServerStatus(Services.Logging.Logger l)
+        private Status Server_status = Status.Initalising;
+        private void Server_SetStatus(Status stat)
         {
-            log = l;
-        }
+            Server_status = stat;
+            log.log($"ServerStatus status = {Server_status}");
 
-        private Status status = Status.Initalising;
-        public void SetStatus(Status stat)
-        {
-            status = stat;
-            log.log($"ServerStatus status = {status}");
+            string statusupdate = "initalising";
 
-            string statusupdate = "online";
-
-            switch (status)
+            switch (Server_status)
             {
                 case Status.Initalising:
                     statusupdate = "initalising";
                     break;
 
                 case Status.Available:
+                    statusupdate = "available";
                     break;
 
                 case Status.Error:
@@ -43,7 +38,7 @@ namespace SplitlaneTracker.Server
                     break;
             }
 
-            SendMqtt?.Invoke(new Services.Mqtt.Packet("status/server", $"{statusupdate}"));
+            _ = Mqtt_Send(new Services.Mqtt.Packet("status/server", $"{statusupdate}"));
         }
     }
 }

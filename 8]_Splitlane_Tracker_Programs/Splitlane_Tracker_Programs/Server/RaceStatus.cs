@@ -7,54 +7,46 @@ using SplitlaneTracker.Services;
 
 namespace SplitlaneTracker.Server
 {
-    internal class RaceStatus
+    #region Ignore
+    [System.ComponentModel.DesignerCategory("")]
+    public class bob { }
+    #endregion
+    public partial class GUI : Form
     {
-        // OnReceived user handler
-        public delegate void SendMqttHandler(Services.Mqtt.Packet packet);
-        public event SendMqttHandler? SendMqtt;
-
-        private static Services.Logging.Logger log;
-
-        public RaceStatus(Services.Logging.Logger l)
-        {
-            log = l;
-        }
-
-
-        System.Timers.Timer timer = new System.Timers.Timer(60000);
-        private void StartTimer()
+        System.Timers.Timer Race_Timer = new System.Timers.Timer(60000);
+        private void Race_Timer_Start()
         {
             log.log("RaceInfo timer starting");
-            timer.Stop();
-            timer.Interval = 30000;
-            timer.Start();
-            timer.Elapsed += Timer_Elapsed;
+            Race_Timer_Stop();
+            Race_Timer.Interval = 30000;
+            Race_Timer.Start();
+            Race_Timer.Elapsed += Race_Timer_Stop;
         }
-        private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void Race_Timer_Stop(object sender, System.Timers.ElapsedEventArgs e)
         {
             log.log("RaceInfo timeout");
-            timer.Stop();
-            SetStatus(Status.Available);
+            Race_Timer_Stop();
+            Race_SetStatus(Status.Available);
         }
 
-        private void StopTimer()
+        private void Race_Timer_Stop()
         {
-            timer.Stop();
+            Race_Timer.Stop();
         }
 
         
 
-        private Status status = Status.Initalising;
-        public void SetStatus(Status stat)
+        private Status Race_status = Status.Initalising;
+        private void Race_SetStatus(Status stat)
         {
-            StopTimer();
+            Race_Timer_Start();
 
-            status = stat;
-            log.log($"RaceStatus status = {status}");
+            Race_status = stat;
+            log.log($"RaceStatus status = {Race_status}");
 
-            string statusupdate = "available";
+            string statusupdate = "initalising";
 
-            switch (status)
+            switch (Race_status)
             {
                 case Status.Initalising:
                     statusupdate = "initalising";
@@ -66,7 +58,7 @@ namespace SplitlaneTracker.Server
 
                 case Status.Ready:
                     statusupdate = "ready";
-                    StartTimer();
+                    Race_Timer_Start();
                     break;
 
                 case Status.Running:
@@ -75,7 +67,7 @@ namespace SplitlaneTracker.Server
 
                 case Status.Complete:
                     statusupdate = "complete";
-                    StartTimer();
+                    Race_Timer_Start();
                     break;
 
                 case Status.Error:
@@ -84,8 +76,7 @@ namespace SplitlaneTracker.Server
                     break;
             }
 
-            SendMqtt?.Invoke(new Services.Mqtt.Packet("status/race", $"{statusupdate}"));
+            _ = Mqtt_Send(new Services.Mqtt.Packet("status/race", $"{statusupdate}"));
         }
-        public Status GetStatus() { return status; }
     }
 }

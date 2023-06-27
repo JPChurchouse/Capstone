@@ -5,6 +5,8 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using SplitlaneTracker.Server.Properties;
 using SplitlaneTracker.Services.Tracking.Race;
 using SplitlaneTracker.Services;
+using MQTTnet.Adapter;
+using System.Threading.Tasks;
 
 namespace SplitlaneTracker.Server
 {
@@ -14,98 +16,37 @@ namespace SplitlaneTracker.Server
 
         private static Logger log = new Logger();
 
-        private static RaceInfo RaceInfo;
-        private static RaceStatus RaceStatus;
-        private static Mqtt MqttClient;
-        private static ServerStatus ServerStatus;
-
 
         public GUI()
         {
-            log.log("Initalising");
-            // Initalise the UI first
             InitializeComponent();
 
+            _ = Initalise();
+        }
+
+        // Initalise server features async
+        private async Task Initalise()
+        {
+            log.log("Initalising");
+
             // Establish communications
-            log.log("MqttClient");
-            MqttClient = new Mqtt(log);
-            MqttClient.HandleMqttPacket += ReceivedMqtt;
+            var result = await Mqtt_Init();
 
-            // Initalis the server status
-            log.log("ServerStatus");
-            ServerStatus = new ServerStatus(log);
-            ServerStatus.SetStatus(Status.Initalising);
-            ServerStatus.SendMqtt += SendMqtt;
-
-            // Initalise the race status
-            log.log("RaceStatus");
-            RaceStatus = new RaceStatus(log);
-            RaceStatus.SetStatus(Status.Initalising);
-            RaceStatus.SendMqtt += SendMqtt;
-
-            // Initalise the race info
-            log.log("RaceInfo");
-            RaceInfo = new RaceInfo(log);
-            RaceInfo.SendMqtt += SendMqtt;
-
-            // Availablility
-            log.log("Availibility");
-            RaceStatus.SetStatus(Status.Available);
-            ServerStatus.SetStatus(Status.Available);
+            // Set statuses as available
+            Server_SetStatus(Status.Available);
+            Race_SetStatus(Status.Available);
 
             // Hide the window
             SetWindowVisbile(false);
 
             log.open();
             log.log("Initalisation complete");
+            //Mqtt_Client.OpenLog();
+
+            return;
         }
 
-        private void SendMqtt(Packet packet)
-        {
-            MqttClient.Send(packet);
-        }
-
-        private void ReceivedMqtt(Packet packet)
-        {
-            string topic = packet.topic;
-            string message = packet.payload;
-            log.log($"New MQTT message received: {topic},{message}");
-
-            // Server command
-            if (topic.Contains("command/server"))
-            {
-                log.log("command/server");
-                NewServerCommand(message);
-            }
-
-            // New race config
-            else if (topic.Contains("raceinfo"))
-            {
-                log.log("raceinfo");
-                RaceInfo.New(message);
-            }
-
-            // Race command
-            else if (topic.Contains("command/race"))
-            {
-                log.log("command/race");
-                NewRaceCommand(message);
-            }
-
-            // Detection
-            else if (topic.Contains("detect"))
-            {
-                log.log("detect");
-                RaceInfo.Detection(message);
-            }
-
-            // Unrecognised
-            else
-            {
-                log.log($"Unable to process message: {topic},{message}");
-            }
-        }
-
+        // New race command processing
         private void NewRaceCommand(string command)
         {
             log.log($"Processing new race command: {command}");
@@ -114,8 +55,7 @@ namespace SplitlaneTracker.Server
             if (command.Contains("start"))
             {
                 log.log("NewRaceCommand - start");
-                RaceInfo.Start();
-                RaceStatus.SetStatus(Status.Running);
+                Race_Start();
             }
 
             //  Set the expirey of the current race
@@ -125,7 +65,7 @@ namespace SplitlaneTracker.Server
                 string num = command.Substring(command.IndexOf(":") + 1);
                 if(Int32.TryParse(num, out int value))
                 {
-                    RaceInfo.Expirey(value);
+                    Race_Expirey(value);
                 }
             }
 
@@ -133,16 +73,14 @@ namespace SplitlaneTracker.Server
             else if (command.Contains("end"))
             {
                 log.log("NewRaceCommand - end");
-                RaceInfo.Stop();
-                RaceStatus.SetStatus(Status.Complete);
+                Race_Stop();
             }
 
             // Cancel the current race info
             else if (command.Contains("cancel"))
             {
                 log.log("NewRaceCommand - cancel");
-                RaceInfo.Cancel();
-                RaceStatus.SetStatus(Status.Available);
+                Race_Cancel();
             }
 
             // Unrecongnised
@@ -152,6 +90,7 @@ namespace SplitlaneTracker.Server
             }
         }
 
+        // New server command processing
         private void NewServerCommand(string command)
         {
             log.log($"Processing new server command: {command}");
@@ -160,7 +99,7 @@ namespace SplitlaneTracker.Server
             if (command.Contains("terminate"))
             {
                 log.log("NewServerCommand - terminate");
-                Terminate();
+                _ = Terminate();
             }
 
             // Unrecongnised
@@ -168,22 +107,21 @@ namespace SplitlaneTracker.Server
             {
                 log.log($"NewServerCommand unrecongised - {command}");
             }
-
         }
 
-        private async void Terminate()
+        // Terminate the program cleanly by disconnecting first
+        private async Task Terminate()
         {
             try
             {
-                RaceStatus.SetStatus(Status.Error);
-                ServerStatus.SetStatus(Status.Error);
-
-                await Task.Delay(300);
+                Server_SetStatus(Status.Error);
+                Race_SetStatus(Status.Error);
+                await Task.Delay(1000);
             }
             catch { }
             finally 
             { 
-                MqttClient.Close();
+                _ = Mqtt_Close();
             }
         }
 
@@ -209,7 +147,7 @@ namespace SplitlaneTracker.Server
 
         private void ServerGui_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Terminate();
+            _ = Terminate();
         }
         
         private void SetWindowVisbile(bool visible = true)
@@ -226,8 +164,6 @@ namespace SplitlaneTracker.Server
             }
         }
         #endregion
-
-
 
         #region Time
         private long TimeNow()
