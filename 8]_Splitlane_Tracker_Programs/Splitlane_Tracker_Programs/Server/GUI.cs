@@ -63,7 +63,7 @@ namespace SplitlaneTracker.Server
             {
                 log.log("NewRaceCommand - expires");
                 string num = command.Substring(command.IndexOf(":") + 1);
-                if(Int32.TryParse(num, out int value))
+                if (Int32.TryParse(num, out int value))
                 {
                     Race_Expirey(value);
                 }
@@ -119,8 +119,8 @@ namespace SplitlaneTracker.Server
                 await Task.Delay(1000);
             }
             catch { }
-            finally 
-            { 
+            finally
+            {
                 _ = Mqtt_Close();
             }
         }
@@ -149,7 +149,7 @@ namespace SplitlaneTracker.Server
         {
             _ = Terminate();
         }
-        
+
         private void SetWindowVisbile(bool visible = true)
         {
             if (visible)
@@ -172,5 +172,7 @@ namespace SplitlaneTracker.Server
         }
 
         #endregion
+
+
     }
 }

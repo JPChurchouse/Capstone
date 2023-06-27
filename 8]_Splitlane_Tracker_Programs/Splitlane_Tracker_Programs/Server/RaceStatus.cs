@@ -75,6 +75,7 @@ namespace SplitlaneTracker.Server
                     statusupdate = "error";
                     break;
             }
+            UpdateGui(Race_status);
 
             _ = Mqtt_Send(new Services.Mqtt.Packet("status/race", $"{statusupdate}"));
         }
