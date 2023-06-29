@@ -34,7 +34,6 @@ namespace SplitlaneTracker.Server
             Race_Timer.Stop();
         }
 
-        
 
         private Status Race_status = Status.Initalising;
         private void Race_SetStatus(Status stat)
@@ -75,9 +74,10 @@ namespace SplitlaneTracker.Server
                     statusupdate = "error";
                     break;
             }
-            UpdateGui(Race_status);
 
             _ = Mqtt_Send(new Services.Mqtt.Packet("status/race", $"{statusupdate}"));
+            
+            UpdateDisplay();
         }
     }
 }

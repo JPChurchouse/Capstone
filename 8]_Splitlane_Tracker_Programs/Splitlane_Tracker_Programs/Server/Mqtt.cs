@@ -29,7 +29,6 @@ namespace SplitlaneTracker.Server
             return result;
         }
 
-
         private Services.Mqtt.Mqtt Mqtt_Client = new Services.Mqtt.Mqtt(
             log,
             "SplitlaneTrackerServer",
@@ -43,10 +42,7 @@ namespace SplitlaneTracker.Server
         }
         private async Task Mqtt_OnConnected()
         {
-            await Mqtt_Client.Subscribe("command/race");
-            await Mqtt_Client.Subscribe("command/server");
-            await Mqtt_Client.Subscribe("raceinfo");
-            await Mqtt_Client.Subscribe("detect");
+            await Mqtt_Client.Subscribe("#");
             return;
         }
 
@@ -82,6 +78,13 @@ namespace SplitlaneTracker.Server
             {
                 log.log("detect");
                 Race_Detection(message);
+            }
+
+            // Detection
+            else if (topic.Contains("status/detection"))
+            {
+                log.log("status/detection");
+                Detection_status = message.Contains("online") ? "Online" : "Offline";
             }
 
             // Unrecognised

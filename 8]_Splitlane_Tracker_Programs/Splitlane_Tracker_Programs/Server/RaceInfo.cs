@@ -50,7 +50,9 @@ namespace SplitlaneTracker.Server
         }
         public void Race_Detection(string json)
         {
-            myRace.AddDetection(new Detection(json));
+            Detection det = new Detection(json);
+            myRace.AddDetection(det);
+            UpdateDisplay(det);
         }
     }
 }

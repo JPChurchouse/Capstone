@@ -1,4 +1,3 @@
-using SplitlaneTracker.Services.Logging;
 using SplitlaneTracker.Services.Tracking;
 using SplitlaneTracker.Services.Mqtt;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -7,6 +6,7 @@ using SplitlaneTracker.Services.Tracking.Race;
 using SplitlaneTracker.Services;
 using MQTTnet.Adapter;
 using System.Threading.Tasks;
+using SplitlaneTracker.Services.Logging;
 
 namespace SplitlaneTracker.Server
 {
@@ -45,6 +45,9 @@ namespace SplitlaneTracker.Server
 
             return;
         }
+        #endregion
+
+        #region Command Processing
 
         // New race command processing
         private void NewRaceCommand(string command)
@@ -173,6 +176,9 @@ namespace SplitlaneTracker.Server
 
         #endregion
 
-
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            log.open();
+        }
     }
 }

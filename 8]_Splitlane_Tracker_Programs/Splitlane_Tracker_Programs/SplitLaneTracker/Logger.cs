@@ -96,11 +96,11 @@ namespace SplitlaneTracker.Services.Logging
 
             // Generate filepath
             string directory;
-#if DEBUG           // When in DEBUG mode, log directory = working directory
+            #if DEBUG           // When in DEBUG mode, log directory = working directory
             directory = $@"{Environment.CurrentDirectory}\logs";
-#else               // When in RELEASE mode, log directory = user's Documents folder and has program name
+            #else               // When in RELEASE mode, log directory = user's Documents folder and has program name
             directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + $@"\{name}_logs" ;
-#endif
+            #endif
 
             // Generate file
             string time = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
