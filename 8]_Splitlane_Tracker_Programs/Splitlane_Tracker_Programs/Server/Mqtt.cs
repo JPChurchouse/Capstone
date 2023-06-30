@@ -32,7 +32,7 @@ namespace SplitlaneTracker.Server
         private Services.Mqtt.Mqtt Mqtt_Client = new Services.Mqtt.Mqtt(
             log,
             "SplitlaneTrackerServer",
-            Settings.Default.MqttBrokerAddress,
+            Properties.Settings.Default.MqttBrokerAddress,
             "status/server",
             "offline");
 

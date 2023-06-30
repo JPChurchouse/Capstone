@@ -196,6 +196,7 @@
             labl_Title.TabIndex = 4;
             labl_Title.Text = "Splitlane Tracking System";
             labl_Title.TextAlign = ContentAlignment.MiddleCenter;
+            labl_Title.Click += labl_Title_Click;
             // 
             // pictureBox1
             // 

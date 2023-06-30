@@ -7,6 +7,7 @@ using SplitlaneTracker.Services;
 using MQTTnet.Adapter;
 using System.Threading.Tasks;
 using SplitlaneTracker.Services.Logging;
+using System.ComponentModel;
 
 namespace SplitlaneTracker.Server
 {
@@ -39,7 +40,6 @@ namespace SplitlaneTracker.Server
             // Hide the window
             SetWindowVisbile(false);
 
-            log.open();
             log.log("Initalisation complete");
             //Mqtt_Client.OpenLog();
 
@@ -126,6 +126,8 @@ namespace SplitlaneTracker.Server
             {
                 _ = Mqtt_Close();
             }
+            StatusIcon.Dispose();
+            this.Close();
         }
 
         #endregion
@@ -179,6 +181,27 @@ namespace SplitlaneTracker.Server
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             log.open();
+        }
+
+        private void labl_Title_Click(object sender, EventArgs e)
+        {
+            Settings win = new Settings();
+            win.Closing += SettingsWindow_Closing;
+            win.ShowDialog();
+        }
+        private void SettingsWindow_Closing(object? sender, CancelEventArgs e)
+        {
+            var res = MessageBox.Show(
+                "Service needs to be restarted for changes to take effect. Close now?",
+                "Restart required",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (res == DialogResult.Yes)
+            {
+                _ = Terminate();
+            }
         }
     }
 }
