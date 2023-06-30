@@ -17,7 +17,6 @@ namespace SplitlaneTracker.Server
 
         private static Logger log = new Logger();
 
-
         public GUI()
         {
             InitializeComponent();

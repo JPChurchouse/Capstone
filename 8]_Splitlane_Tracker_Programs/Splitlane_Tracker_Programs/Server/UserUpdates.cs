@@ -13,7 +13,7 @@ namespace SplitlaneTracker.Server
     #endregion
     public partial class GUI : Form
     {
-        private string Detection_status;
+        private string Detection_status = "Unavailable";
         private void UpdateDisplay(Services.Tracking.Detection? detection = null)
         {
             // UI thread
