@@ -8,6 +8,15 @@ namespace XKarts.Comms
 {
     public enum Command
     {
-        RaceInfo,things
+        NewRaceInfo,
+        StopRace,
+        ClearRaceInfo,
+        KartDetected
+    }
+    public enum Request
+    {
+        RaceStatsAll,
+        RaceStatsSingle,
+        Display
     }
 }

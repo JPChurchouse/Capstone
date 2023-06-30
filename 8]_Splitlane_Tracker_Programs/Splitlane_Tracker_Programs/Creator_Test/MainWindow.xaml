@@ -8,6 +8,8 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Button Content="test colours" HorizontalAlignment="Left" Margin="70,45,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <Button Content="setup race" HorizontalAlignment="Left" Margin="75,200,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
+        <Button Content="run race" HorizontalAlignment="Left" Margin="87,272,0,0" VerticalAlignment="Top" Click="Button_Click_3"/>
 
     </Grid>
 </Window>

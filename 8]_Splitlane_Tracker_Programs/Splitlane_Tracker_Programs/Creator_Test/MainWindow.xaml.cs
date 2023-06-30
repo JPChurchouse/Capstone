@@ -14,8 +14,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using XKarts;
-using XKarts.Logging;
+using SplitlaneTracker.Services;
+using System.Net.Sockets;
+using SplitlaneTracker.Services.Tracking;
+using System.IO;
 
 namespace TestPlatform
 {
@@ -24,21 +26,77 @@ namespace TestPlatform
     /// </summary>
     public partial class MainWindow : Window
     {
-        Logger steve = new Logger();
+        private static SplitlaneTracker.Services.Logging.Logger log = new SplitlaneTracker.Services.Logging.Logger();
         public MainWindow()
         {
             InitializeComponent();
         }
+        private string json = "asdf";
 
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var colour = XKarts.Identifier.Colour.Red;
-            ulong integer = 0xFF0000;
+            _ = thing();
+        }
+        private async Task thing() { 
+            var client = new SplitlaneTracker.Services.Mqtt.Mqtt(log,"tester","localhost","test","offline");
+            await client.Connect();
 
-            steve.log($"Testing RED: integer=={integer}, colour=={colour}, colasint=={(ulong)colour},equal=={(ulong)colour==integer}");
+            string init = @"{""KartList"":[{""Colour"":""red"",""Number"":17,""DetectionList"":[]},{""Colour"":""green"",""Number"":23,""DetectionList"":[]},{""Colour"":""blue"",""Number"":9,""DetectionList"":[]}],""RequiredLaps"":[8,8,20]}";
+            await client.Publish("raceinfo", init);
 
-            steve.open();
+            await Task.Delay(1000);
+
+            await client.Publish("command/race","start");
+
+            await Task.Delay(1000);
+
+            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""red"",""Lane"": ""left""}");
+            await Task.Delay(300);
+
+            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""green"",""Lane"": ""left""}");
+            await Task.Delay(300);
+
+            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""red"",""Lane"": ""left""}");
+            await Task.Delay(300);
+
+            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""blue"",""Lane"": ""right""}");
+            await Task.Delay(300);
+
+            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""green"",""Lane"": ""left""}");
+            await Task.Delay(300);
+
+            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""red"",""Lane"": ""right""}");
+            await Task.Delay(300);
+
+            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""red"",""Lane"": ""left""}");
+            await Task.Delay(300);
+
+            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""blue"",""Lane"": ""left""}");
+            await Task.Delay(300);
+
+            await Task.Delay(1000);
+
+            await client.Publish("command/race", "end");
+
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            string json = @"{""KartList"":[{""Colour"":""red"",""Number"":""17"",""Name"":null,""DetectionList"":[{""Time"":1687638447,""Colour"":""red"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""},{""Time"":1687638447,""Colour"":""red"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""},{""Time"":1687638447,""Colour"":""red"",""Lane"":""right"",""TimeReadable"":""12:47:18.447""},{""Time"":1687638447,""Colour"":""red"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""}],""NextExpectedDetection"":0},{""Colour"":""green"",""Number"":""23"",""Name"":null,""DetectionList"":[{""Time"":1687638447,""Colour"":""green"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""},{""Time"":1687638447,""Colour"":""green"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""}],""NextExpectedDetection"":0},{""Colour"":""blue"",""Number"":""9"",""Name"":null,""DetectionList"":[{""Time"":1687638447,""Colour"":""blue"",""Lane"":""right"",""TimeReadable"":""12:47:18.447""},{""Time"":1687638447,""Colour"":""blue"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""}],""NextExpectedDetection"":0}],""RequiredLaps"":[8,8,20]}";
+
+            var myRace = new SplitlaneTracker.Services.Tracking.Race.Race(json);
+
+            string dir = Environment.CurrentDirectory + "\\output";
+            Directory.CreateDirectory(dir);
+            myRace.ExportToFileAsJson(dir);
+            myRace.ExportToFileAsText(dir);
+            log.log("Current working dir: " + dir);
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
         }
     }
+
 }
