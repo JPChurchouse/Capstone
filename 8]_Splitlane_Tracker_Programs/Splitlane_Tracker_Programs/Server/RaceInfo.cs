@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SplitlaneTracker.Services;
 using SplitlaneTracker.Services.Tracking;
+using SplitlaneTracker.Services.Tracking.Race;
 
 namespace SplitlaneTracker.Server
 {
@@ -14,14 +15,21 @@ namespace SplitlaneTracker.Server
     #endregion
     public partial class GUI : Form
     {
-        private Services.Tracking.Race.Race myRace = new Services.Tracking.Race.Race();
+        private Race myRace = new Race();
 
         public void Race_New(string json)
         {
             log.log("Initalising new Race");
             log.log(json);
-            myRace = new Services.Tracking.Race.Race(json);
-            Race_SetStatus(Status.Ready);
+
+            if (myRace.InitFromJson(json))
+            {
+                Race_SetStatus(Status.Ready);
+            }
+            else
+            {
+                Race_SetStatus(Status.Available);
+            }
         }
 
         public void Race_Start()
@@ -50,8 +58,18 @@ namespace SplitlaneTracker.Server
         }
         public void Race_Detection(string json)
         {
-            Detection det = new Detection(json);
-            myRace.AddDetection(det);
+            Detection det = new Detection();
+
+            if (det.InitFromJson(json))
+            {
+                myRace.AddDetection(det);
+            }
+            else
+            {
+                det.Colour = "Parsing Error";
+                det.Lane = "";
+            }
+
             UpdateDisplay(det);
         }
     }
