@@ -23,14 +23,14 @@ namespace SplitlaneTracker.Services.Tracking
         public void Detect(Detection detection)
         {
             DetectionList.Add(detection);
-            math(detection.Time);
+            CalculateNextDetection(detection.Time);
         }
 
 
         // Maths
         public long NextExpectedDetection = 0;
         private long[] LastLapTimes = new long[3];
-        private void math(long stamp)
+        private void CalculateNextDetection(long stamp)
         {
             int count = DetectionList.Count;
             int index = count % 3;

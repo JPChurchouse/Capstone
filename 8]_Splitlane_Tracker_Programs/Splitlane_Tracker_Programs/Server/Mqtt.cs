@@ -73,6 +73,10 @@ namespace SplitlaneTracker.Server
                 NewRaceCommand(message);
             }
 
+            // Throw out other commands
+            else if (topic.Contains("command")) { }
+            else if (topic.Contains("status")) { }
+
             // Detection
             else if (topic.Contains("detect"))
             {

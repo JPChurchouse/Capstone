@@ -34,7 +34,7 @@ namespace SplitlaneTracker.Services.Tracking.Race
         public void ExportToFileAsText(string filePath)
         {
             try
-            {            
+            {
                 string name = DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
 
                 // Title
@@ -100,7 +100,7 @@ namespace SplitlaneTracker.Services.Tracking.Race
                 {
                     if (kart.Colour == detection.Colour)
                     {
-                        kart.DetectionList.Add(detection);
+                        kart.Detect(detection);
                         break;
                     }
                 }

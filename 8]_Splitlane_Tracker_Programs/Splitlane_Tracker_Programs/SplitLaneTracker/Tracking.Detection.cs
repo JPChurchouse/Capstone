@@ -52,7 +52,7 @@ namespace SplitlaneTracker.Services.Tracking
             if (Time == 0) return;
 
             var time = DateTimeOffset.FromUnixTimeMilliseconds(Time);
-            TimeReadable = time.ToString("HH:mm:ss.fff");
+            TimeReadable = time.ToLocalTime().ToString("HH:mm:ss.fff");
         }
     }
 }
