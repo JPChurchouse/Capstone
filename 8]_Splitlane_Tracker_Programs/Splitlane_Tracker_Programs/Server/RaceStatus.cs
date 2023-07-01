@@ -26,7 +26,7 @@ namespace SplitlaneTracker.Server
         {
             log.log("RaceInfo timeout");
             Race_Timer_Stop();
-            Race_SetStatus(Status.Available);
+            Race_SetStatus(Status.Online);
         }
 
         private void Race_Timer_Stop()
@@ -43,39 +43,32 @@ namespace SplitlaneTracker.Server
             Race_status = stat;
             log.log($"RaceStatus status = {Race_status}");
 
-            string statusupdate = "initalising";
-
             switch (Race_status)
             {
                 case Status.Initalising:
-                    statusupdate = "initalising";
                     break;
 
-                case Status.Available:
-                    statusupdate = "available";
+                case Status.Online:
                     break;
 
                 case Status.Ready:
-                    statusupdate = "ready";
                     Race_Timer_Start();
                     break;
 
                 case Status.Running:
-                    statusupdate = "running";
                     break;
 
                 case Status.Complete:
-                    statusupdate = "complete";
                     Race_Timer_Start();
                     break;
 
+                case Status.Offline:
                 case Status.Error:
                 default:
-                    statusupdate = "error";
                     break;
             }
 
-            _ = Mqtt_Send(new Services.Mqtt.Packet("status/race", $"{statusupdate}"));
+            _ = Mqtt_Send(new Services.Mqtt.Packet("status/race", $"{Race_status}"));
             
             UpdateDisplay();
         }

@@ -14,13 +14,13 @@ namespace SplitlaneTracker.Services.Tracking
         public List<Detection> DetectionList = new List<Detection>();
         public long NextExpectedDetection = 0;
 
-        public Kart() 
+        public Kart()
         {
             Colour = "null";
             Number = "null";
             Name = "null";
         }
-        public Kart(string colour, string number, string name) 
+        public Kart(string colour, string number, string name = "null")
         { 
             Colour = colour;
             Number = number;

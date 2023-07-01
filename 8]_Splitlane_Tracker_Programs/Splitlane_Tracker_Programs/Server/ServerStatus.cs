@@ -20,25 +20,7 @@ namespace SplitlaneTracker.Server
             Server_status = stat;
             log.log($"ServerStatus status = {Server_status}");
 
-            string statusupdate = "initalising";
-
-            switch (Server_status)
-            {
-                case Status.Initalising:
-                    statusupdate = "initalising";
-                    break;
-
-                case Status.Available:
-                    statusupdate = "available";
-                    break;
-
-                case Status.Error:
-                default:
-                    statusupdate = "offline";
-                    break;
-            }
-
-            _ = Mqtt_Send(new Services.Mqtt.Packet("status/server", $"{statusupdate}"));
+            _ = Mqtt_Send(new Services.Mqtt.Packet("status/server", $"{Server_status}"));
         }
     }
 }

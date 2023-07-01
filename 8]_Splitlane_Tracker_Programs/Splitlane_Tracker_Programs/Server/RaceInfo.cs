@@ -28,7 +28,7 @@ namespace SplitlaneTracker.Server
             }
             else
             {
-                Race_SetStatus(Status.Available);
+                Race_SetStatus(Status.Online);
             }
         }
 
@@ -54,7 +54,7 @@ namespace SplitlaneTracker.Server
         }
         public void Race_Cancel()
         {
-            Race_SetStatus(Status.Available);
+            Race_SetStatus(Status.Online);
         }
         public void Race_Detection(string json)
         {

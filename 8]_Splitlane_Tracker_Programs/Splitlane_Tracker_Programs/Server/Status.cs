@@ -16,11 +16,12 @@ namespace SplitlaneTracker.Server
         enum Status
         {
             Initalising,
-            Available,
+            Online,
             Ready,
             Running,
-            Error,
-            Complete
+            Offline,
+            Complete,
+            Error
         }
     }
 }
