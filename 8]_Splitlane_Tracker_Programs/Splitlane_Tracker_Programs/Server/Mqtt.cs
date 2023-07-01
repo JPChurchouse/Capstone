@@ -34,7 +34,7 @@ namespace SplitlaneTracker.Server
             "SplitlaneTrackerServer",
             Properties.Settings.Default.MqttBrokerAddress,
             "status/server",
-            "offline");
+            "Offline");
 
         private Task Mqtt_OnDisconnect()
         {
@@ -74,17 +74,22 @@ namespace SplitlaneTracker.Server
             }
 
             // Detection
+            else if (topic.Contains("status/detection"))
+            {
+                log.log("status/detection");
+                Detection_status = message.Contains("Online") ? Status.Online : Status.Offline;
+                UpdateDisplay();
+            }
+
+            // Throw out other commands
+            else if (topic.Contains("command")) { }
+            else if (topic.Contains("status")) { }
+
+            // Detection
             else if (topic.Contains("detect"))
             {
                 log.log("detect");
                 Race_Detection(message);
-            }
-
-            // Detection
-            else if (topic.Contains("status/detection"))
-            {
-                log.log("status/detection");
-                Detection_status = message.Contains("online") ? "Online" : "Offline";
             }
 
             // Unrecognised

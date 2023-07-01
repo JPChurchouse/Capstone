@@ -12,8 +12,15 @@ namespace SplitlaneTracker.Services.Tracking
         public string Number;
         public string Name;
         public List<Detection> DetectionList = new List<Detection>();
+        public long NextExpectedDetection = 0;
 
-        public Kart(string colour, string number, string name) 
+        public Kart()
+        {
+            Colour = "null";
+            Number = "null";
+            Name = "null";
+        }
+        public Kart(string colour, string number, string name = "null")
         { 
             Colour = colour;
             Number = number;
@@ -23,14 +30,13 @@ namespace SplitlaneTracker.Services.Tracking
         public void Detect(Detection detection)
         {
             DetectionList.Add(detection);
-            math(detection.Time);
+            CalculateNextDetection(detection.Time);
         }
 
 
         // Maths
-        public long NextExpectedDetection = 0;
         private long[] LastLapTimes = new long[3];
-        private void math(long stamp)
+        private void CalculateNextDetection(long stamp)
         {
             int count = DetectionList.Count;
             int index = count % 3;

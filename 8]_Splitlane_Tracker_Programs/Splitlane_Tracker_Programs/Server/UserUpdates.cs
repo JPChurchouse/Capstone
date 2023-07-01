@@ -13,7 +13,7 @@ namespace SplitlaneTracker.Server
     #endregion
     public partial class GUI : Form
     {
-        private string Detection_status = "Unavailable";
+        private Status Detection_status = Status.Offline;
         private void UpdateDisplay(Services.Tracking.Detection? detection = null)
         {
             // UI thread
@@ -23,85 +23,84 @@ namespace SplitlaneTracker.Server
                 return;
             }
 
-            // Redo status labels
-            labl_DetectorStatus.Text = Detection_status;
-            labl_ServerStatus.Text = Server_status.ToString();
 
-            // Race status
-            string race_msg;
-            Color race_col;
+            // Redo status labels
+            labl_DetectorStatus.Text = Detection_status.ToString();
+            labl_DetectorStatus.ForeColor = 
+                Detection_status==Status.Online ?
+                Color.White : Color.Red;
+            
+            labl_ServerStatus.Text = Server_status.ToString();
+            labl_RaceStatus.Text = Race_status.ToString();
+            StatusIcon.Text = Race_status.ToString();
+
+
+            // Race status colour and icon
+            Color color;
+            Icon icon;
 
             switch (Race_status)
             {
                 case Status.Initalising:
-                    StatusIcon.Icon = Properties.Resources.black;
-                    this.Icon = Properties.Resources.black;
-                    StatusIcon.Text = "Initalising...";
-                    race_col = Color.White;
-                    race_msg = "Initalising";
+                    icon = Properties.Resources.black;
+                    color = Color.White;
                     break;
 
-                case Status.Available:
-                    StatusIcon.Icon = Properties.Resources.white;
-                    this.Icon = Properties.Resources.white;
-                    StatusIcon.Text = "Available";
-                    race_col = Color.White;
-                    race_msg = "Available";
+                case Status.Online:
+                    icon = Properties.Resources.white;
+                    color = Color.White;
                     break;
 
                 case Status.Ready:
-                    StatusIcon.Icon = Properties.Resources.yellow;
-                    this.Icon = Properties.Resources.yellow;
-                    StatusIcon.Text = "Ready";
-                    race_col = Color.Yellow;
-                    race_msg = "Ready";
+                    icon = Properties.Resources.yellow;
+                    color = Color.Yellow;
                     break;
 
                 case Status.Running:
-                    StatusIcon.Icon = Properties.Resources.green;
-                    this.Icon = Properties.Resources.green;
-                    StatusIcon.Text = "Running";
-                    race_col = Color.Lime;
-                    race_msg = "Running";
+                    icon = Properties.Resources.green;
+                    color = Color.Lime;
                     break;
 
                 case Status.Complete:
-                    StatusIcon.Icon = Properties.Resources.blue;
-                    this.Icon = Properties.Resources.blue;
-                    StatusIcon.Text = "Complete";
-                    race_col = Color.Blue;
-                    race_msg = "Complete";
+                    icon = Properties.Resources.blue;
+                    color = Color.DodgerBlue;
                     break;
 
+                case Status.Offline:
                 case Status.Error:
-
                 default:
-                    StatusIcon.Icon = Properties.Resources.red;
-                    this.Icon = Properties.Resources.red;
-                    StatusIcon.Text = "Error";
-                    race_col = Color.Red;
-                    race_msg = "Error";
+                    icon = Properties.Resources.red;
+                    color = Color.Red;
                     break;
             }
 
-            if (labl_RaceStatus.Text != race_msg)
-            {
-                labl_RaceStatus.Text = race_msg;
-                labl_RaceStatus.ForeColor = race_col;
+            labl_RaceStatus.ForeColor = color;
+            StatusIcon.Icon = icon;
+            this.Icon = icon;
 
-                race_msg = DateTime.Now.ToString("HH:mm:ss") + " " + race_msg + "\r\n";
-                string existing;
-                if (txtbx_Output.Text.Length > 500)
-                {
-                    existing = txtbx_Output.Text.Substring(0, 500);
-                }
-                else
-                {
-                    existing = txtbx_Output.Text;
-                }
-                if (existing.Contains(race_msg)) { return; }
-                txtbx_Output.Text = race_msg + existing;
+
+            // Update race status to the box
+            string sub = "";
+            string rstat = Race_status.ToString();
+            int index = txtbx_Output.Text.IndexOf("\r\n");
+            if (index != -1)
+            {
+                sub = txtbx_Output.Text.Substring(0, index);
             }
+
+            if (!sub.Contains(rstat))
+            {
+                rstat = DateTime.Now.ToString("HH:mm:ss") + " " + rstat + "\r\n";
+
+                int len = 200;
+                string existing = 
+                    txtbx_Output.Text.Length > len ?
+                    txtbx_Output.Text.Substring(0, len) :
+                    txtbx_Output.Text;
+
+                txtbx_Output.Text = rstat + existing;
+            }
+
 
             // Add detection info
             if (detection != null)

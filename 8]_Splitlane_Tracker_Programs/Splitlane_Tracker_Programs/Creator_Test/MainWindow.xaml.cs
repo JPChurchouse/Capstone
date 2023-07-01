@@ -85,7 +85,8 @@ namespace TestPlatform
         {
             string json = @"{""KartList"":[{""Colour"":""red"",""Number"":""17"",""Name"":null,""DetectionList"":[{""Time"":1687638447,""Colour"":""red"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""},{""Time"":1687638447,""Colour"":""red"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""},{""Time"":1687638447,""Colour"":""red"",""Lane"":""right"",""TimeReadable"":""12:47:18.447""},{""Time"":1687638447,""Colour"":""red"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""}],""NextExpectedDetection"":0},{""Colour"":""green"",""Number"":""23"",""Name"":null,""DetectionList"":[{""Time"":1687638447,""Colour"":""green"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""},{""Time"":1687638447,""Colour"":""green"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""}],""NextExpectedDetection"":0},{""Colour"":""blue"",""Number"":""9"",""Name"":null,""DetectionList"":[{""Time"":1687638447,""Colour"":""blue"",""Lane"":""right"",""TimeReadable"":""12:47:18.447""},{""Time"":1687638447,""Colour"":""blue"",""Lane"":""left"",""TimeReadable"":""12:47:18.447""}],""NextExpectedDetection"":0}],""RequiredLaps"":[8,8,20]}";
 
-            var myRace = new SplitlaneTracker.Services.Tracking.Race.Race(json);
+            var myRace = new SplitlaneTracker.Services.Tracking.Race.Race();
+            myRace.InitFromJson(json);
 
             string dir = Environment.CurrentDirectory + "\\output";
             Directory.CreateDirectory(dir);

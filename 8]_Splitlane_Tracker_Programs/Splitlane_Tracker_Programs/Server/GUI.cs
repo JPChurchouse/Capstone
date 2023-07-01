@@ -33,8 +33,8 @@ namespace SplitlaneTracker.Server
             var result = await Mqtt_Init();
 
             // Set statuses as available
-            Server_SetStatus(Status.Available);
-            Race_SetStatus(Status.Available);
+            Server_SetStatus(Status.Online);
+            Race_SetStatus(Status.Online);
 
             // Hide the window
             SetWindowVisbile(false);
@@ -116,8 +116,8 @@ namespace SplitlaneTracker.Server
         {
             try
             {
-                Server_SetStatus(Status.Error);
-                Race_SetStatus(Status.Error);
+                Server_SetStatus(Status.Offline);
+                Race_SetStatus(Status.Offline);
                 await Task.Delay(1000);
             }
             catch { }

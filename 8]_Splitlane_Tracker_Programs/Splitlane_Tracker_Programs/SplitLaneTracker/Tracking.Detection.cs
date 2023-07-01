@@ -10,19 +10,14 @@ namespace SplitlaneTracker.Services.Tracking
 {
     public class Detection
     {
-        public long Time;
-        public string Colour;
-        public string Lane;
+        public long Time = 0;
+        public string Colour = "null";
+        public string Lane = "null";
         public string TimeReadable = "null";
 
-        public Detection() 
-        {
-            Time = 0;
-            Colour = "null";
-            Lane = "null";
-            TimeReadable = "null";
-        }
-        public Detection(long time, string colour, string lane) 
+        public Detection() { }
+
+        public void InitFromInfo(long time, string colour, string lane) 
         {
             Time = time;
             Colour = colour;
@@ -30,10 +25,18 @@ namespace SplitlaneTracker.Services.Tracking
 
             ConvertTimeToDate();
         }
-        public Detection(string json) 
+        public bool InitFromJson(string json)
         {
-            Detection det = JsonConvert.DeserializeObject<Detection>(json)??
-                new Detection(0,"err","err");
+            Detection? det;
+            try
+            {
+                det = JsonConvert.DeserializeObject<Detection>(json);
+                if (det == null) throw new Exception();
+            }
+            catch
+            {
+                return false;
+            }
 
             this.Time = det.Time;
             this.Colour = det.Colour;
@@ -41,6 +44,8 @@ namespace SplitlaneTracker.Services.Tracking
             this.TimeReadable = det.TimeReadable;
 
             ConvertTimeToDate();
+
+            return true;
         }
         public string GetJson()
         {
@@ -52,7 +57,7 @@ namespace SplitlaneTracker.Services.Tracking
             if (Time == 0) return;
 
             var time = DateTimeOffset.FromUnixTimeMilliseconds(Time);
-            TimeReadable = time.ToString("HH:mm:ss.fff");
+            TimeReadable = time.ToLocalTime().ToString("HH:mm:ss.fff");
         }
     }
 }

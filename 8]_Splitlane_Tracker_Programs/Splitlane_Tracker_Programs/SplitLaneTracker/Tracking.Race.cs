@@ -12,12 +12,27 @@ namespace SplitlaneTracker.Services.Tracking.Race
     {
         public List<Kart> KartList = new List<Kart>();
         public int[] RequiredLaps = new int[3] {0,0,0};
+
         public Race() { }
-        public Race(string json)
+
+        public bool InitFromJson(string json)
         {
-            Race det = JsonConvert.DeserializeObject<Race>(json) ?? new Race();
-            KartList = det.KartList;
-            RequiredLaps = det.RequiredLaps;
+            Race? rac;
+
+            try
+            {
+                rac = JsonConvert.DeserializeObject<Race>(json);
+                if (rac == null) throw new Exception();
+            }
+            catch
+            {
+                return false;
+            }
+            
+            KartList = rac.KartList;
+            RequiredLaps = rac.RequiredLaps;
+
+            return true;
         }
 
         public string GetJson()
@@ -34,7 +49,7 @@ namespace SplitlaneTracker.Services.Tracking.Race
         public void ExportToFileAsText(string filePath)
         {
             try
-            {            
+            {
                 string name = DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
 
                 // Title
@@ -100,10 +115,14 @@ namespace SplitlaneTracker.Services.Tracking.Race
                 {
                     if (kart.Colour == detection.Colour)
                     {
-                        kart.DetectionList.Add(detection);
-                        break;
+                        kart.Detect(detection);
+                        return true;
                     }
                 }
+
+                // Not found - create new kart
+                KartList.Add(new Kart(detection.Colour,"unknown"));
+                KartList[KartList.Count - 1].Detect(detection);
             }
             catch
             {
@@ -115,6 +134,20 @@ namespace SplitlaneTracker.Services.Tracking.Race
         private long TimeNow()
         {
             return DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        }
+
+        public Kart GetNextExpectedKart()
+        {
+            Kart kart = new Kart();
+            foreach (Kart k in KartList)
+            {
+                long tim = k.NextExpectedDetection;
+                if (tim > 0 && tim > kart.NextExpectedDetection)
+                {
+                    kart = k;
+                }
+            }
+            return kart;
         }
     }
 }
