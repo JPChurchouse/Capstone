@@ -137,9 +137,9 @@ namespace SplitlaneTracker.Services.Tcp
                 }
             }
         }
-        public void Send(string payload)
+        public async Task Send(string payload)
         {
-            _ = SendToAllClients(payload);
+            await SendToAllClients(payload);
         }
 
         #endregion

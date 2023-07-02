@@ -19,10 +19,11 @@ namespace SplitlaneTracker.Server
                 Environment.CurrentDirectory +
                 "\\RaceDisplayPage.html", log);
 
-        private void UpdateDisplays()
+        private void UpdateRemoteDisplays()
         {
             string info = myRace.GetDisplayInfoAsJson();
-            TcpServer.Send(info);
+            log.log(info);
+            _ = TcpServer.Send(info);
         }
     }
 }
