@@ -149,5 +149,56 @@ namespace SplitlaneTracker.Services.Tracking.Race
             }
             return kart;
         }
+
+        public string GetDisplayInfoAsJson()
+        {
+            // Create new list from the karts list and sort it
+            List<Kart> input = new List<Kart>(KartList);
+            input.OrderBy(x => x.NextExpectedDetection);
+
+            // Create a new output list
+            List<KartDisplay> output = new List<KartDisplay>();
+
+            // Iterate over each kart in the sorted list
+            foreach (Kart kart in input)
+            {
+                KartDisplay info = new KartDisplay();
+
+                info.Number  = kart.Number;
+
+                // Calculate how many laps are requred in each lane (and total)
+                int[] laps_comp = kart.GetLapCount();
+                int[] laps_togo = new int[laps_comp.Length];
+
+                for (int i = 0; i < laps_comp.Length; i++)
+                {
+                    laps_togo[i] = this.RequiredLaps[i] - laps_comp[i];
+                    if (laps_togo[i] <= 0) laps_togo[i] = 0;
+                }
+
+                info.Left  = laps_togo[0].ToString();
+                info.Right = laps_togo[1].ToString();
+                info.Total = laps_togo[2].ToString();
+
+                output.Add(info);
+            }
+
+            return JsonConvert.SerializeObject(output);
+        }
+    }
+    public struct KartDisplay
+    {
+        public KartDisplay() { }
+        public KartDisplay(string num, string l, string r, string t) 
+        {
+            Number = num;
+            Left = l;
+            Right = r;
+            Total = t;
+        }
+        public string Number  = "null";
+        public string Left  = "00";
+        public string Right = "00";
+        public string Total = "00";
     }
 }

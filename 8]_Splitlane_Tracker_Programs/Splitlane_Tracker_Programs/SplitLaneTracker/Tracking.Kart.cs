@@ -33,6 +33,19 @@ namespace SplitlaneTracker.Services.Tracking
             CalculateNextDetection(detection.Time);
         }
 
+        public int[] GetLapCount()
+        {
+            int[] ints = new int[3] { 0, 0, 0 };
+            foreach (Detection det in DetectionList)
+            {
+                if (det.Lane == "left") ints[0]++;
+                else if (det.Lane == "right") ints[1]++;
+                else ints[2]++;
+            }
+            ints[2] += ints[0] + ints[1];
+            return ints;
+        }
+
 
         // Maths
         private long[] LastLapTimes = new long[3];

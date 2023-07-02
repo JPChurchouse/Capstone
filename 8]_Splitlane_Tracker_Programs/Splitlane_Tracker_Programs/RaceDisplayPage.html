@@ -16,6 +16,13 @@
       /* Change the alignment */
     }
 
+    h2 {
+      font-family: Arial, sans-serif;
+      /* Change the font family */
+      text-align: center;
+      /* Change the alignment */
+    }
+
     table {
       border-collapse: collapse;
       text-align: center;
@@ -41,12 +48,20 @@
 
 <body>
   <h1>Splitlane Tracking System</h1>
-  <div id="output"></div>
-  <div id="table-container"></div>
+  <h2>Number of laps remaining:</h2>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>Kart</th>
+        <th>Left</th>
+        <th>Right</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-
-
 
     const outputDiv = document.getElementById("output");
     const socket = new WebSocket("ws://localhost:8080");
@@ -69,54 +84,47 @@
       console.log("WebSocket connection closed.");
     };
 
-    function updateDispList(jsonString) {
+
+    function updateTable(jsonString) {
       const jsonArray = JSON.parse(jsonString);
+      const tableBody = document.querySelector('#data-table tbody');
 
-      // Iterate over the array of objects
-      jsonArray.forEach(obj => {
-        console.log(obj.name);
-        console.log(obj.age);
-      });
-
-
-
-    }
-
-    const jsonArray = [
-      { name: 'John', age: 30, city: 'New York' },
-      { name: 'Jane', age: 25, city: 'London' },
-      { name: 'Bob', age: 40, city: 'Paris' }
-    ];
-
-    const tableContainer = document.getElementById('table-container');
-    const table = document.createElement('table');
-    const headerRow = document.createElement('tr');
-
-    // Create table headers
+      // Clear existing table data
+      tableBody.innerHTML = '';
+      /*
     Object.keys(jsonArray[0]).forEach(key => {
       const th = document.createElement('th');
       th.textContent = key;
       headerRow.appendChild(th);
     });
+      */
+      // Update table with new data
+      jsonArray.forEach(obj => {
+        const row = document.createElement('tr');
 
-    table.appendChild(headerRow);
+        Object.values(obj).forEach(value => {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
 
-    // Create table rows and cells
-    jsonArray.forEach(obj => {
-      const row = document.createElement('tr');
-
-      Object.values(obj).forEach(value => {
-        const cell = document.createElement('td');
-        cell.textContent = value;
-        row.appendChild(cell);
+        tableBody.appendChild(row);
       });
+    }
 
-      table.appendChild(row);
-    });
+    const myInfo = [
+      { Number: "17", Left: "6", Right: "2", Total: "8" },
+      { Number: "29", Left: "9", Right: "0", Total: "9" },
+      { Number: "8", Left: "1", Right: "2", Total: "3" },
+      { Number: "1", Left: "2", Right: "2", Total: "4" },
+      { Number: "7", Left: "2", Right: "17", Total: "19" },
+      { Number: "42.0", Left: "6", Right: "9", Total: "nice" }
+    ]
 
-    tableContainer.appendChild(table);
+    //const jsonData = '[{"name": "John", "age": 30, "city": "New York"}, {"name": "Jane", "age": 25, "city": "London"}]';
+    const jsonData = JSON.stringify(myInfo);
+    updateTable(jsonData);
 
-    
   </script>
 </body>
 
