@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Example</title>
+</head>
+<body>
+    <h1>WebSocket Example</h1>
+
+    <script>
+        // Create a new WebSocket connection
+        const socket = new WebSocket("INSERT_WS_IP_ADDRESS_HERE");
+
+        socket.onopen = function (event) {
+            console.log("WebSocket connection established.");
+
+            // Send a message to the server
+            socket.send("Hello, server!");
+        };
+
+        socket.onmessage = function (event) {
+            const receivedData = event.data;
+            console.log("Received WebSocket message: " + receivedData);
+        };
+
+        socket.onclose = function (event) {
+            console.log("WebSocket connection closed.");
+        };
+    </script>
+</body>
+</html>

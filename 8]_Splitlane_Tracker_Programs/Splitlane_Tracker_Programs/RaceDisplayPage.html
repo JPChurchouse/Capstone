@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Websocket Client</title>
+</head>
+<body>
+  <h1>WebSocket Client</h1>
+  <div id="output"></div>
+
+  <script>
+    const outputDiv = document.getElementById("output");
+    const socket = new WebSocket("ws://localhost:8080");
+
+    socket.onopen = function(event) {
+      console.log("WebSocket connection established.");
+    };
+
+    socket.onmessage = function(event) {
+      const receivedData = event.data;
+      console.log("Received WebSocket message: " + receivedData);
+
+      // Update the page with received data
+      const messageDiv = document.createElement("div");
+      messageDiv.textContent = receivedData;
+      outputDiv.appendChild(messageDiv);
+    };
+
+    socket.onclose = function(event) {
+      console.log("WebSocket connection closed.");
+    };
+  </script>
+</body>
+</html>

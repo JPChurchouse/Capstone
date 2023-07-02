@@ -11,4 +11,10 @@
     <ProjectReference Include="..\SplitLaneTracker\SplitLaneTracker.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="RaceDisplayPage.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

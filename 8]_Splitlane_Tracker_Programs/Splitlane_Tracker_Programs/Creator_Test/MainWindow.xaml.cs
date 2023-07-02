@@ -30,6 +30,7 @@ namespace TestPlatform
         public MainWindow()
         {
             InitializeComponent();
+            log.open();
         }
         private string json = "asdf";
 
@@ -95,8 +96,16 @@ namespace TestPlatform
             log.log("Current working dir: " + dir);
         }
 
+        private static SplitlaneTracker.Services.Tcp.TcpServer tCPsERVER =
+            new SplitlaneTracker.Services.Tcp.TcpServer(
+                "localhost",
+                8080,
+                Environment.CurrentDirectory +
+                "\\RaceDisplayPage.html", log);
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
+            tCPsERVER.Send("ping");
+
         }
     }
 
