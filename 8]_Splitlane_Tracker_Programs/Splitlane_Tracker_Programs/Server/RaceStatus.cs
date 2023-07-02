@@ -20,9 +20,9 @@ namespace SplitlaneTracker.Server
             Race_Timer_Stop();
             Race_Timer.Interval = 30000;
             Race_Timer.Start();
-            Race_Timer.Elapsed += Race_Timer_Stop;
+            Race_Timer.Elapsed += Race_Timer_Elapsed;
         }
-        private void Race_Timer_Stop(object sender, System.Timers.ElapsedEventArgs e)
+        private void Race_Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             log.log("RaceInfo timeout");
             Race_Timer_Stop();
@@ -38,8 +38,7 @@ namespace SplitlaneTracker.Server
         private Status Race_status = Status.Initalising;
         private void Race_SetStatus(Status stat)
         {
-            Race_Timer_Start();
-
+            Race_Timer_Stop();
             Race_status = stat;
             log.log($"RaceStatus status = {Race_status}");
 

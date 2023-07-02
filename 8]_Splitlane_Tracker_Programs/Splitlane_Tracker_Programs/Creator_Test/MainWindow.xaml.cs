@@ -43,7 +43,7 @@ namespace TestPlatform
             var client = new SplitlaneTracker.Services.Mqtt.Mqtt(log,"tester","localhost","test","offline");
             await client.Connect();
 
-            string init = @"{""KartList"":[{""Colour"":""red"",""Number"":17,""DetectionList"":[]},{""Colour"":""green"",""Number"":23,""DetectionList"":[]},{""Colour"":""blue"",""Number"":9,""DetectionList"":[]}],""RequiredLaps"":[8,8,20]}";
+            string init = @"{""KartList"":[{""Colour"":""red"",""Number"":17,""DetectionList"":[]},{""Colour"":""green"",""Number"":23,""DetectionList"":[]},{""Colour"":""blue"",""Number"":9,""DetectionList"":[]}],""RequiredLaps"":[4,4,10]}";
             await client.Publish("raceinfo", init);
 
             await Task.Delay(1000);
@@ -51,30 +51,30 @@ namespace TestPlatform
             await client.Publish("command/race","start");
 
             await Task.Delay(1000);
-
+            /*
             await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""red"",""Lane"": ""left""}");
-            await Task.Delay(300);
+            await Task.Delay(300);*/
 
-            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""green"",""Lane"": ""left""}");
-            await Task.Delay(300);
+            // Colours are "red", "green", "blue" - "yellow" for live addition testing
+            // Lanes are "left, "right"
 
-            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""red"",""Lane"": ""left""}");
-            await Task.Delay(300);
+            string[] colours = { "red", "green", "blue", "yellow" };
+            string[] lanes = { "left", "right" };
 
-            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""blue"",""Lane"": ""right""}");
-            await Task.Delay(300);
+            Random random = new Random();
+            for (int i = 0; i < 50; i++)
+            {
+                int col = random.Next(4);
+                int lan = random.Next(2);
+                int del = random.Next(3000);
 
-            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""green"",""Lane"": ""left""}");
-            await Task.Delay(300);
+                string info = "{" + $"\"Time\": {TimeNow()},\"Colour\": \"{colours[col]}\",\"Lane\": \"{lanes[lan]}\"" + "}";
+                log.log(info);
 
-            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""red"",""Lane"": ""right""}");
-            await Task.Delay(300);
+                await client.Publish("detect", info);
+                await Task.Delay(del);
+            }
 
-            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""red"",""Lane"": ""left""}");
-            await Task.Delay(300);
-
-            await client.Publish("detect", @"{""Time"": 1687638447,""Colour"": ""blue"",""Lane"": ""left""}");
-            await Task.Delay(300);
 
             await Task.Delay(1000);
 
@@ -106,6 +106,11 @@ namespace TestPlatform
         {
             //tCPsERVER.Send("ping");
 
+        }
+
+        private long TimeNow()
+        {
+            return DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
     }
 
