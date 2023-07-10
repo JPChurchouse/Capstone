@@ -153,8 +153,7 @@ namespace SplitlaneTracker.Services.Tracking.Race
     public string GetDisplayInfoAsJson()
     {
       // Create new list from the karts list and sort it
-      List<Kart> input = new List<Kart>(KartList);
-      input.OrderBy(x => x.NextExpectedDetection);
+      var input = KartList.OrderBy(x => x.NextExpectedDetection);
 
       // Create a new output list
       List<KartDisplay> output = new List<KartDisplay>();
