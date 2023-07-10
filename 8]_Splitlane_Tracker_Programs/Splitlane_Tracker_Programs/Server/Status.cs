@@ -7,21 +7,21 @@ using System.Threading.Tasks;
 
 namespace SplitlaneTracker.Server
 {
-    #region Ignore
-    [System.ComponentModel.DesignerCategory("")]
-    public class asdff { }
-    #endregion
-    public partial class GUI : Form
+  #region Ignore
+  [System.ComponentModel.DesignerCategory("")]
+  public class asdff { }
+  #endregion
+  public partial class GUI : Form
+  {
+    enum Status
     {
-        enum Status
-        {
-            Initalising,
-            Online,
-            Ready,
-            Running,
-            Offline,
-            Complete,
-            Error
-        }
+      Initalising,
+      Online,
+      Ready,
+      Running,
+      Offline,
+      Complete,
+      Error
     }
+  }
 }
