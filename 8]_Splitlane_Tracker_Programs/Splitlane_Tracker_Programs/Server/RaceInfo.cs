@@ -58,6 +58,8 @@ namespace SplitlaneTracker.Server
     }
     public void Race_Detection(string json)
     {
+      if (Race_status != Status.Running) return;
+
       Detection det = new Detection();
 
       if (det.InitFromJson(json))

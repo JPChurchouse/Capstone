@@ -122,7 +122,8 @@ namespace SplitlaneTracker.Server
         txtbx_Detection.Text = new_msg + existing;
       }
       
-      UpdateRemoteDisplays();
+      // Update the remote displays
+      _ = UpdateRemoteDisplays();
     }
   }
 }

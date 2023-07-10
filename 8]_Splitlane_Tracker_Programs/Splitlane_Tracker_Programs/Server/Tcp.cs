@@ -18,11 +18,15 @@ namespace SplitlaneTracker.Server
       Environment.CurrentDirectory + "\\RaceDisplayPage.html", 
       log);
 
-    private void UpdateRemoteDisplays()
+    private async Task UpdateRemoteDisplays()
     {
-      string info = myRace.GetDisplayInfoAsJson();
+      string info = "[{\"Number\": \"Waiting\",\"Left\": \"for\",\"Right\": \"new\",\"Total\": \"race\"}]";
+
+      if (Race_status == Status.Running || Race_status == Status.Ready) 
+        info = myRace.GetDisplayInfoAsJson();
+
       log.log(info);
-      _ = Mqtt_Client.Publish("display", info);
+      await Mqtt_Client.Publish("display", info);
     }
   }
 }
