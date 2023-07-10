@@ -3,111 +3,111 @@
 
 <head>
   <style>
-  body {
-    color: white;
-    background-color: #000000;
-    /* Use a hex color code */
-  }
+    body {
+      color: white;
+      background-color: #000000;
+      /* Use a hex color code */
+    }
 
-  h1 {
-    font-family: Arial, sans-serif;
-    /* Change the font family */
-    text-align: center;
-    /* Change the alignment */
-  }
+    h1 {
+      font-family: Arial, sans-serif;
+      /* Change the font family */
+      text-align: center;
+      /* Change the alignment */
+    }
 
-  h2 {
-    font-family: Arial, sans-serif;
-    /* Change the font family */
-    text-align: center;
-    /* Change the alignment */
-  }
+    h2 {
+      font-family: Arial, sans-serif;
+      /* Change the font family */
+      text-align: center;
+      /* Change the alignment */
+    }
 
-  table {
-    border-collapse: collapse;
-    text-align: center;
-    margin: 0 auto;
-    width: 90%;
-  }
+    table {
+      border-collapse: collapse;
+      text-align: center;
+      margin: 0 auto;
+      width: 90%;
+    }
 
-  th,
-  td {
-    border: 2px solid red;
-    padding: 8px;
-    font-size: xx-large;
-    font-family: Arial, sans-serif;
-  }
+    th,
+    td {
+      border: 2px solid red;
+      padding: 8px;
+      font-size: xx-large;
+      font-family: Arial, sans-serif;
+    }
   </style>
 
-  <title>Websocket Client</title>
-
-  <img src="Resources/Logo_XKarts_Main.png" alt="Description of the image" height="200"
-     style="display: block; margin: 0 auto;">
+  <title>Splitlane Tracker</title>
+  
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
-
 
 </head>
 
 <body>
+  <!--"Resources/Logo_XKarts_Main.png"-->
+  <img src="https://xkarts.co.nz/wp-content/uploads/2022/03/XKARTS-scaled.jpg" alt="Xkarts Logo" height="200"
+       style="display: block; margin: 0 auto;">
   <h1>Splitlane Tracking System</h1>
   <h2>Number of laps remaining:</h2>
   <table id="data-table">
-  <thead>
-    <tr>
-    <th>Kart</th>
-    <th>Left</th>
-    <th>Right</th>
-    <th>Total</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
+    <thead>
+      <tr>
+        <th>Kart</th>
+        <th>Left</th>
+        <th>Right</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
   </table>
 
   <script>
     var hostname = "INSERT_MQTT_ADDRESS_HERE";
-  var port = 9001;
-  var clientId = "RemoteDisplay";
-  clientId += new Date().getUTCMilliseconds();
+    var port = 9001;
+    var clientId = "RemoteDisplay";
+    clientId += new Date().getUTCMilliseconds();
 
-  mqttClient = new Paho.MQTT.Client(hostname, port, clientId);
-  mqttClient.onMessageArrived = MessageArrived;
-  mqttClient.onConnectionLost = ConnectionLost;
-  Connect();
+    mqttClient = new Paho.MQTT.Client(hostname, port, clientId);
+    mqttClient.onMessageArrived = MessageArrived;
+    mqttClient.onConnectionLost = ConnectionLost;
+    Connect();
 
-  /*Initiates a connection to the MQTT broker*/
+    /*Initiates a connection to the MQTT broker*/
     function Connect() {
       console.log(hostname);
       mqttClient.connect({
         onSuccess: Connected,
         onFailure: ConnectionFailed
-        });
-  }
-
-  /*Callback for successful MQTT connection */
-  function Connected() {
-    console.log("Connected");
-    mqttClient.subscribe("display");
-  }
-
-  /*Callback for failed connection*/
-  function ConnectionFailed(res) {
-    console.log("Connect failed:" + res.errorMessage);
-  }
-
-  /*Callback for lost connection*/
-  function ConnectionLost(res) {
-    if (res.errorCode != 0) {
-    console.log("Connection lost:" + res.errorMessage);
-    Connect();
+      });
     }
-  }
 
-  /*Callback for incoming message processing */
-  function MessageArrived(message) {
-    console.log(message.destinationName + " : " + message.payloadString);
-    updateTable(message.payloadString);
-  }
+    /*Callback for successful MQTT connection */
+    function Connected() {
+      console.log("Connected");
+      mqttClient.subscribe("display");
+    }
+
+    /*Callback for failed connection*/
+    function ConnectionFailed(res) {
+      console.log("Connect failed:" + res.errorMessage);
+    }
+
+    /*Callback for lost connection*/
+    function ConnectionLost(res) {
+      if (res.errorCode != 0) {
+        console.log("Connection lost:" + res.errorMessage);
+        Connect();
+      }
+    }
+
+    /*Callback for incoming message processing */
+    function MessageArrived(message) {
+      console.log(message.destinationName + " : " + message.payloadString);
+      updateTable(message.payloadString);
+    }
 
 
 
@@ -118,48 +118,48 @@
 
 
 
-  const outputDiv = document.getElementById("output");
+    const outputDiv = document.getElementById("output");
 
-  function updateTable(jsonString) {
-    const jsonArray = JSON.parse(jsonString);
-    const tableBody = document.querySelector('#data-table tbody');
+    function updateTable(jsonString) {
+      const jsonArray = JSON.parse(jsonString);
+      const tableBody = document.querySelector('#data-table tbody');
 
-    // Clear existing table data
-    tableBody.innerHTML = '';
-    /*
-  Object.keys(jsonArray[0]).forEach(key => {
-    const th = document.createElement('th');
-    th.textContent = key;
-    headerRow.appendChild(th);
-  });
-    */
-    // Update table with new data
-    jsonArray.forEach(obj => {
-    const row = document.createElement('tr');
-
-    Object.values(obj).forEach(value => {
-      const cell = document.createElement('td');
-      cell.textContent = value;
-      row.appendChild(cell);
+      // Clear existing table data
+      tableBody.innerHTML = '';
+      /*
+    Object.keys(jsonArray[0]).forEach(key => {
+      const th = document.createElement('th');
+      th.textContent = key;
+      headerRow.appendChild(th);
     });
+      */
+      // Update table with new data
+      jsonArray.forEach(obj => {
+        const row = document.createElement('tr');
 
-    tableBody.appendChild(row);
-    });
-  }
+        Object.values(obj).forEach(value => {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+
+        tableBody.appendChild(row);
+      });
+    }
 /*
-  const myInfo = [
-    { Number: "17", Left: "6", Right: "2", Total: "8" },
-    { Number: "29", Left: "9", Right: "0", Total: "9" },
-    { Number: "8", Left: "1", Right: "2", Total: "3" },
-    { Number: "1", Left: "2", Right: "2", Total: "4" },
-    { Number: "7", Left: "2", Right: "17", Total: "19" },
-    { Number: "42.0", Left: "6", Right: "9", Total: "nice" }
-  ]
-  jsonData = '[{"Number":"17","Left":"7","Right":"8","Total":"19"},{"Number":"23","Left":"8","Right":"8","Total":"20"},{"Number":"9","Left":"8","Right":"7","Total":"19"}]'
+      const myInfo = [
+        { Number: "17", Left: "6", Right: "2", Total: "8" },
+        { Number: "29", Left: "9", Right: "0", Total: "9" },
+        { Number: "8", Left: "1", Right: "2", Total: "3" },
+        { Number: "1", Left: "2", Right: "2", Total: "4" },
+        { Number: "7", Left: "2", Right: "17", Total: "19" },
+        { Number: "42.0", Left: "6", Right: "9", Total: "nice" }
+      ]
+      jsonData = '[{"Number":"17","Left":"7","Right":"8","Total":"19"},{"Number":"23","Left":"8","Right":"8","Total":"20"},{"Number":"9","Left":"8","Right":"7","Total":"19"}]'
 
-  //const jsonData = '[{"name": "John", "age": 30, "city": "New York"}, {"name": "Jane", "age": 25, "city": "London"}]';
-  const jsonData = JSON.stringify(myInfo);
-  updateTable(jsonData);*/
+      //const jsonData = '[{"name": "John", "age": 30, "city": "New York"}, {"name": "Jane", "age": 25, "city": "London"}]';
+      const jsonData = JSON.stringify(myInfo);
+      updateTable(jsonData);*/
 
   </script>
 </body>
