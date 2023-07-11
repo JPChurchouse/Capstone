@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+
+<head>
+	<style>
+		body{
+			min-width: 300px;
+			min-height: 350px
+		}
+	</style>
+	<title>Number Assingent</title>
+</head>
+
+<body>
+	<h3>Kart Colour Assignment</h1>
+    <p id='pagetitle'>Proof of Scraping</p>
+	<p>
+		<label for="port">Port Number:  </label>
+		<input type="number" id="port" name="port" min="1" max="10000" value = "1810">
+	</p>
+	<p>
+		<label for="auto"> Automatic Mode On: </label>
+		<input type="checkbox" id="auto" name="auto" value="automode" checked><br>
+	</p>
+	<p style="font-weight: bold;"></pstyle>Active Colours</p>
+	<p>
+		<input type="button" id="select" value="Select All">
+		<input type="button" id="deselect" value="Deselect All">
+	</p>
+	<div id="karts">
+	<p>
+		<img src="Orange.jpg" alt="Orange" width="20" height="20">
+		<input type="checkbox" id="orange" name="orange" value="orangeOn" checked>
+		<input type="number" id="orangenum" min="1" max="100" value = "1"><br>
+	<p>
+	<p>
+		<img src="blue.jpg" alt="Blue" width="20" height="20">
+		<input type="checkbox" id="blue" name="blue" value="blueOn" checked>
+		<input type="number" id="greennum" min="1" max="100" value = "2"><br>
+	<p>
+	<p>
+		<img src="green.jpg" alt="Green" width="20" height="20">
+		<input type="checkbox" id="green" name="green" value="greenOn" checked>
+		<input type="number" id="greennum" min="1" max="100" value = "3"><br>
+	<p>
+	</div>
+	<p>
+		<input type="button" id="start" value="Start Race">
+		<input type="button" id="cancel" value="Cancel Race">
+		<input type="button" id="print" value="Get Printout"><br>
+	<p>
+	<div id="console"></div>
+	<script src="popup.js"></script>
+</body>
+</html>
