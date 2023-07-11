@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace SplitlaneTracker.Services.Mqtt
 {
-    public struct Packet
+  public struct Packet
+  {
+    public string topic, payload;
+    public Packet(string tpc, string msg)
     {
-        public string topic, payload;
-        public Packet(string tpc, string msg)
-        {
-            payload = msg;
-            topic = tpc;
-        }
+      payload = msg;
+      topic = tpc;
     }
+  }
 }

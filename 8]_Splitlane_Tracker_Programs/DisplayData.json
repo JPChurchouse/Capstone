@@ -1,0 +1,40 @@
+{
+    [
+        {
+            "Number": "17",
+            "Left": "6",
+            "Right": "2",
+            "Total": "8"
+        },
+        {
+            "Number": "29",
+            "Left": "9",
+            "Right": "0",
+            "Total": "9"
+        },
+        {
+            "Number": "8",
+            "Left": "1",
+            "Right": "2",
+            "Total": "3"
+        },
+        {
+            "Number": "1",
+            "Left": "2",
+            "Right": "2",
+            "Total": "4"
+        },
+        {
+            "Number": "7",
+            "Left": "2",
+            "Right": "17",
+            "Total": "19"
+        },
+        {
+            "Number": "21",
+            "Left": "6",
+            "Right": "9",
+            "Total": "nice"
+        }
+    ]
+}

@@ -30,7 +30,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SplitlaneTracker.Services", "SplitLaneTracker\SplitlaneTracker.Services.csproj", "{4140E189-D989-4117-B8E2-9DD19A5B4939}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SplitlaneTracker.Server", "Server\SplitlaneTracker.Server.csproj", "{636449F4-509A-4089-880B-FCCC5133C235}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SplitlaneTracker.Server", "Server\SplitlaneTracker.Server.csproj", "{636449F4-509A-4089-880B-FCCC5133C235}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

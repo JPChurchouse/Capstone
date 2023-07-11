@@ -10,20 +10,20 @@ using System.Windows.Forms;
 
 namespace SplitlaneTracker.Server
 {
-    public partial class Settings : Form
+  public partial class Settings : Form
+  {
+    public Settings()
     {
-        public Settings()
-        {
-            InitializeComponent();
+      InitializeComponent();
 
-            textbox_IpAddress.Text = Properties.Settings.Default.MqttBrokerAddress;
-        }
-
-        private void button_Commit_Click(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.MqttBrokerAddress = textbox_IpAddress.Text;
-            Properties.Settings.Default.Save();
-            this.Close();
-        }
+      textbox_IpAddress.Text = Properties.Settings.Default.MqttBrokerAddress;
     }
+
+    private void button_Commit_Click(object sender, EventArgs e)
+    {
+      Properties.Settings.Default.MqttBrokerAddress = textbox_IpAddress.Text;
+      Properties.Settings.Default.Save();
+      this.Close();
+    }
+  }
 }
