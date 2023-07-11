@@ -1,0 +1,33 @@
+{
+	"manifest_version": 2,
+
+	"name": "Number Assingment",
+	"description": "Extention to assign colours to numbers",
+	"version": "1.0",
+	"author": "TraXTraX",
+
+	"background": {
+		"scripts": ["background.js"],
+		"persistent": true
+	},
+	
+	"content_scripts": [
+		{
+		  "matches": ["<all_urls>"],
+		  "js": ["background.js"]       
+		}
+	],
+
+	"permissions": [
+        "tabs",
+        "http://*/",
+        "https://*/",
+		"clipboardWrite",
+		"clipboardRead",
+		"storage"
+    ],
+	"browser_action": {
+		"default_icon": "XkartsCropped.png",
+		"default_popup": "popup.html"
+	}
+}
