@@ -1,2 +1,9 @@
-//Check URL and Content
+//Initialise connection
+
+
+
+//On serial command recived, do action
+
+
+//Push JSON out dataline
 
