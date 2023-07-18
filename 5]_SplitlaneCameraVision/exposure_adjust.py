@@ -14,7 +14,7 @@ def main():
     for exposure in exposures:
         #code
         path = os.getcwd() + f"/exposure_{str(exposure)}.avi"
-        
+
         #or depending on camera
         subprocess.check_call(f"v4l2-ctl -d /dev/video0 -c exposure_absolute={str(exposure)}", shell = True)
 
@@ -44,7 +44,7 @@ def main():
 
             cv.imshow("frame", frame)
             output.write(frame)
-
+            frame_num = frame_num + 1
 
             if cv.waitKey(1) & 0xFF == ord('q'):
                     break

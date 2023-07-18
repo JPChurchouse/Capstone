@@ -12,8 +12,8 @@ import argparse
 def main():
 
     #code
-    path = os.getcwd() + "/5]_SplitlaneCameraVision/video_trial.avi"
-    camera = cv.VideoCapture(0)
+    path = "video_trial.avi"
+    camera = cv.VideoCapture(1)
     if (not camera.isOpened()):
         print(f"Error:Camera not found!")
         return 1

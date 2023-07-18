@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
-#define NUM 10
+#define NUM 12
 #define PIN 2
 
 
@@ -26,7 +26,7 @@ int j;
 void setup() 
 {
   strip.begin();
-  strip.setBrightness(10);
+  strip.setBrightness(100);
   strip.show(); // Initialize all pixels to 'off'
   
   j = 11;
@@ -51,11 +51,11 @@ void loop()
 
   //strip.setBrightness(50);
   //strip.show();
-  //if(j<12){
-  //  j++;
-  //}
-  //else{
-  //  j = 0;
-  //}
+  if(j<12){
+    j++;
+  }
+  else {
+    j = 0;
+  }
   
 }

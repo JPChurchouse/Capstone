@@ -22,18 +22,23 @@ for col in col_list:
     lower_b = col[0]-tolerance
     if lower_b < 0:
         lower_b = 0
+
     upper_b = col[0]+tolerance
     if upper_b > 255:
         upper_b = 255
+    
     lower_g = col[1]-tolerance
     if lower_g < 0:
         lower_g = 0
+    
     upper_g = col[1]+tolerance
     if upper_g > 255:
         upper_g = 255  
+    
     lower_r = col[2]-tolerance
     if lower_r < 0:
         lower_r = 0
+    
     upper_r = col[2]+tolerance
     if upper_r > 255:
         upper_r = 255

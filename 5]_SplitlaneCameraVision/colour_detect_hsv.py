@@ -13,7 +13,7 @@ def main():
 
     #code
     path = os.getcwd() + "video_trial.avi"
-    camera = cv.VideoCapture(0)
+    camera = cv.VideoCapture(1)
     if (not camera.isOpened()):
         print(f"Error:Camera not found!")
         return 1
