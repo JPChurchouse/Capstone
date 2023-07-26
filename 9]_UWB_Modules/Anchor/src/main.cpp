@@ -2,26 +2,26 @@
 //////
 
 #include <SPI.h>
-#include "DW1000Ranging.h"
-
+#include "DW1000Ranging.h"     //https://github.com/thotro/arduino-dw1000
+ 
 #define ANCHOR_ADD "83:17:5B:D5:A9:9A:E2:9C"
-
+ 
 #define SPI_SCK 18
 #define SPI_MISO 19
 #define SPI_MOSI 23
 #define DW_CS 4
-
+ 
 // connection pins
 const uint8_t PIN_RST = 27; // reset pin
 const uint8_t PIN_IRQ = 34; // irq pin
 const uint8_t PIN_SS = 4;   // spi select pin
+ 
 
-// Prototypes
 void newRange();
 void newBlink(DW1000Device *device);
 void inactiveDevice(DW1000Device *device);
 
-//Setup
+
 void setup()
 {
     Serial.begin(115200);
@@ -35,10 +35,10 @@ void setup()
     DW1000Ranging.attachInactiveDevice(inactiveDevice);
     //Enable the filter to smooth the distance
     //DW1000Ranging.useRangeFilter(true);
-
+ 
     //we start the module as an anchor
     // DW1000Ranging.startAsAnchor("82:17:5B:D5:A9:9A:E2:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY);
-
+ 
     DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_RANGE_LOWPOWER, false);
     // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_SHORTDATA_FAST_LOWPOWER);
     // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_FAST_LOWPOWER);
@@ -46,12 +46,12 @@ void setup()
     // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_FAST_ACCURACY);
     // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_RANGE_ACCURACY);
 }
-
+ 
 void loop()
 {
     DW1000Ranging.loop();
 }
-
+ 
 void newRange()
 {
     Serial.print("from: ");
@@ -63,14 +63,14 @@ void newRange()
     Serial.print(DW1000Ranging.getDistantDevice()->getRXPower());
     Serial.println(" dBm");
 }
-
+ 
 void newBlink(DW1000Device *device)
 {
     Serial.print("blink; 1 device added ! -> ");
     Serial.print(" short:");
     Serial.println(device->getShortAddress(), HEX);
 }
-
+ 
 void inactiveDevice(DW1000Device *device)
 {
     Serial.print("delete inactive device: ");
