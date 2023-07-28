@@ -30,6 +30,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 void wifi_setup();
+void mqtt_setup();
 void mqtt_message(char*, byte *, unsigned int);
 void mqtt_reconnect() ;
 void mqtt_subscribe();
@@ -40,14 +41,15 @@ const uint8_t PIN_RST = 27; // reset pin
 const uint8_t PIN_IRQ = 34; // irq pin
 const uint8_t PIN_SS = 4;   // spi select pin
 
-void newRange();
-void newBlink(DW1000Device*);
-void inactiveDevice(DW1000Device*);
+void uwb_setup();
+void uwb_newRange();
+void uwb_newBlink(DW1000Device*);
+void uwb_inactiveDevice(DW1000Device*);
 
 
 // RTC INIT
 ESP32Time rtc(12 * 3600);
-ulong time(ulong);
+ulong rtc_time(ulong);
 
 
 
@@ -59,7 +61,7 @@ void setup()
   wifi_setup();
   delay(1000);
 
-  mqtt_setup
+  mqtt_setup();
   delay(1000);
 
   uwb_setup();
@@ -89,7 +91,6 @@ void loop()
 void wifi_setup() 
 {
   delay(10);
-  // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -109,7 +110,9 @@ void wifi_setup()
 }
 
 
-void mqtt_setup(){
+// Setup MQTT
+void mqtt_setup()
+{
   client.setServer(mqtt_server, 1883);
   client.setCallback(mqtt_message);
   client.publish("init", "hello");
@@ -120,7 +123,6 @@ void mqtt_subscribe()
 {
 client.subscribe("timestamp");
 }
-
 
 // New MQTT message arrived
 void mqtt_message(char* topic, byte* msg, unsigned int length) 
@@ -144,12 +146,11 @@ void mqtt_message(char* topic, byte* msg, unsigned int length)
 
   if (String(topic) == "timestamp") 
   {
-    time(message.toInt())
+    rtc_time(message.toInt());
   }
 }
 
-
-// Reconnect to WIFI
+// Reconnect to MQTT
 void mqtt_reconnect() 
 {
   // Loop until we're reconnected
@@ -177,16 +178,16 @@ void mqtt_reconnect()
 }
  
 
-
+// UWB Setup
 void uwb_setup()
 {
   //init the configuration
     SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
     DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
     //define the sketch as anchor. It will be great to dynamically change the type of module
-    DW1000Ranging.attachNewRange(newRange);
-    DW1000Ranging.attachBlinkDevice(newBlink);
-    DW1000Ranging.attachInactiveDevice(inactiveDevice);
+    DW1000Ranging.attachNewRange(uwb_newRange);
+    DW1000Ranging.attachBlinkDevice(uwb_newBlink);
+    DW1000Ranging.attachInactiveDevice(uwb_inactiveDevice);
     //Enable the filter to smooth the distance
     //DW1000Ranging.useRangeFilter(true);
 
@@ -201,10 +202,10 @@ void uwb_setup()
     DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_SHORTDATA_FAST_ACCURACY);
     // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_FAST_ACCURACY);
     // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_RANGE_ACCURACY);
-
 }
+
 // Detect UWB
-void newRange()
+void uwb_newRange()
 {
     char message[32];
 
@@ -226,9 +227,8 @@ void newRange()
     Serial.println(" dBm");
 }
  
-
 // Not sure
-void newBlink(DW1000Device *device)
+void uwb_newBlink(DW1000Device *device)
 {
     return;
     Serial.print("blink; 1 device added ! -> ");
@@ -236,9 +236,8 @@ void newBlink(DW1000Device *device)
     Serial.println(device->getShortAddress(), HEX);
 }
  
-
 // UWB out of range
-void inactiveDevice(DW1000Device *device)
+void uwb_inactiveDevice(DW1000Device *device)
 {
     return;
     Serial.print("delete inactive device: ");
@@ -247,7 +246,7 @@ void inactiveDevice(DW1000Device *device)
 
 
 // RTC handler
-ulong time(ulong value = 0)
+ulong rtc_time(ulong value = 0)
 {
   if (value != 0) rtc.setTime(value);
   return rtc.getEpoch();
