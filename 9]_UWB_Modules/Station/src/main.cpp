@@ -327,8 +327,8 @@ void detect_packet(uint16_t who, bool rightlane)
   ulong time = rtc_time();
 
   //{"Time": 1687638447,"Colour": "red","Lane": "left"}
-  if (rightlane)  sprintf(message, "{\"Time\": \"%u\",\"Colour\": \"%X\",\"Lane\": \"right\"}",time,who);
-  else            sprintf(message, "{\"Time\": \"%u\",\"Colour\": \"%X\",\"Lane\": \"left\"}" ,time,who);
+  if (rightlane)  sprintf(message, "{\"Time\": %u,\"Colour\": \"%X\",\"Lane\": \"right\"}",time,who);
+  else            sprintf(message, "{\"Time\": %u,\"Colour\": \"%X\",\"Lane\": \"left\"}" ,time,who);
 
   client.publish("detect", message);
   Serial.println(who,HEX);
