@@ -1,54 +1,186 @@
+/*
+
+
+*/
+
+// INCLUDES AND DEFINES
 #include <Arduino.h>
 #include <SPI.h>
 #include "DW1000Ranging.h"     //https://github.com/thotro/arduino-dw1000
 #include <WiFi.h>
 #include <PubSubClient.h>
-
+#include <ESP32Time.h>
 
 #define ANCHOR_ADD "83:17:5B:D5:A9:9A:E2:9C"
- 
+
 #define SPI_SCK 18
 #define SPI_MISO 19
 #define SPI_MOSI 23
 #define DW_CS 4
 
 
-
-// Replace the next variables with your SSID/Password combination
+// WIFI AND MQTT INIT  
 const char* ssid = "Lodge Wireless Internet";
 const char* password = "JulietCharlieHotelQuebec";
 const char* mqtt_server = "192.168.1.20";
-WiFiClient espClient;
-PubSubClient client(espClient);
 long lastMsg = 0;
 char msg[50];
-int value = 0;
-void setup_wifi();
-void callback(char*, byte *, unsigned int);
-void reconnect() ;
 
- 
-// connection pins
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+void wifi_setup();
+void mqtt_message(char*, byte *, unsigned int);
+void mqtt_reconnect() ;
+void mqtt_subscribe();
+
+
+// UWB INIT
 const uint8_t PIN_RST = 27; // reset pin
 const uint8_t PIN_IRQ = 34; // irq pin
 const uint8_t PIN_SS = 4;   // spi select pin
- 
+
 void newRange();
-void newBlink(DW1000Device *device);
-void inactiveDevice(DW1000Device *device);
+void newBlink(DW1000Device*);
+void inactiveDevice(DW1000Device*);
 
 
+// RTC INIT
+ESP32Time rtc(12 * 3600);
+ulong time(ulong);
+
+
+
+// SETUP
 void setup()
 {
-    Serial.begin(115200);
+  Serial.begin(115200);
 
-    setup_wifi();
-    client.setServer(mqtt_server, 1883);
-    client.setCallback(callback);
+  wifi_setup();
+  delay(1000);
+
+  mqtt_setup
+  delay(1000);
+
+  uwb_setup();
+  delay(1000);
+}
+ 
+
+// MAIN LOOP
+void loop()
+{
+  if (WiFi.status() != WL_CONNECTED) 
+  {
+    wifi_setup;
+  }
+
+  if (!client.connected())
+  {
+    mqtt_reconnect();
+  } 
+
+  client.loop();
+  DW1000Ranging.loop();
+}
 
 
-    delay(1000);
-    //init the configuration
+// Setup Wifi
+void wifi_setup() 
+{
+  delay(10);
+  // We start by connecting to a WiFi network
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) 
+  {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+
+void mqtt_setup(){
+  client.setServer(mqtt_server, 1883);
+  client.setCallback(mqtt_message);
+  client.publish("init", "hello");
+}
+
+// Subscribe to MQTT topics
+void mqtt_subscribe()
+{
+client.subscribe("timestamp");
+}
+
+
+// New MQTT message arrived
+void mqtt_message(char* topic, byte* msg, unsigned int length) 
+{
+  Serial.print("Message arrived on topic: ");
+  Serial.print(topic);
+  Serial.print(". Message: ");
+  String message;
+  
+  for (int i = 0; i < length; i++) 
+  {
+    Serial.print((char)msg[i]);
+    message += (char)msg[i];
+  }
+
+  Serial.println();
+
+  if (String(topic) == "command/dock") 
+  {
+  }
+
+  if (String(topic) == "timestamp") 
+  {
+    time(message.toInt())
+  }
+}
+
+
+// Reconnect to WIFI
+void mqtt_reconnect() 
+{
+  // Loop until we're reconnected
+  while (!client.connected()) 
+  {
+    Serial.print("Attempting MQTT connection...");
+
+    // Attempt to connect
+    if (client.connect("Dock_Client")) 
+    {
+      Serial.println("connected");
+      // Subscribe
+      mqtt_subscribe();
+    } 
+
+    else 
+    {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      // Wait 5 seconds before retrying
+      delay(5000);
+    }
+  }
+}
+ 
+
+
+void uwb_setup()
+{
+  //init the configuration
     SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
     DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
     //define the sketch as anchor. It will be great to dynamically change the type of module
@@ -70,88 +202,8 @@ void setup()
     // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_FAST_ACCURACY);
     // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_RANGE_ACCURACY);
 
-    client.publish("init", "hello");
 }
- 
-void loop()
-{
-  DW1000Ranging.loop();
-
-  if (!client.connected()) reconnect();
-  client.loop();
-}
-
-void setup_wifi() 
-{
-  delay(10);
-  // We start by connecting to a WiFi network
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-}
-
-void callback(char* topic, byte* message, unsigned int length) 
-{
-  Serial.print("Message arrived on topic: ");
-  Serial.print(topic);
-  Serial.print(". Message: ");
-  String messageTemp;
-  
-  for (int i = 0; i < length; i++) 
-  {
-    Serial.print((char)message[i]);
-    messageTemp += (char)message[i];
-  }
-
-  Serial.println();
-
-  // Feel free to add more if statements to control more GPIOs with MQTT
-
-  // If a message is received on the topic esp32/output, you check if the message is either "on" or "off". 
-  // Changes the output state according to the message
-  if (String(topic) == "command/dock") 
-  {
-  }
-}
-
-void reconnect() 
-{
-  // Loop until we're reconnected
-  while (!client.connected()) 
-  {
-    Serial.print("Attempting MQTT connection...");
-
-    // Attempt to connect
-    if (client.connect("Dock_Client")) 
-    {
-      Serial.println("connected");
-      // Subscribe
-      client.subscribe("command/dock");
-    } 
-
-    else 
-    {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
-    }
-  }
-}
- 
+// Detect UWB
 void newRange()
 {
     char message[32];
@@ -174,6 +226,8 @@ void newRange()
     Serial.println(" dBm");
 }
  
+
+// Not sure
 void newBlink(DW1000Device *device)
 {
     return;
@@ -182,9 +236,19 @@ void newBlink(DW1000Device *device)
     Serial.println(device->getShortAddress(), HEX);
 }
  
+
+// UWB out of range
 void inactiveDevice(DW1000Device *device)
 {
     return;
     Serial.print("delete inactive device: ");
     Serial.println(device->getShortAddress(), HEX);
+}
+
+
+// RTC handler
+ulong time(ulong value = 0)
+{
+  if (value != 0) rtc.setTime(value);
+  return rtc.getEpoch();
 }
