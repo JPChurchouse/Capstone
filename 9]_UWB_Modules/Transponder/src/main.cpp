@@ -3,7 +3,8 @@
 #include <DW1000Ranging.h>
 
 // Transponder code
-char* MY_ID = "7D:00:22:EA:82:60:3B:9C";
+char* MY_ID = "01:00:00:00:00:00:00:00";
+
  
 #define SPI_SCK 18
 #define SPI_MISO 19
@@ -38,7 +39,7 @@ void setup()
     DW1000.setAntennaDelay(16438);
  
     //we start the module as a tag
-    DW1000Ranging.startAsTag(MY_ID, DW1000.MODE_SHORTDATA_FAST_ACCURACY);
+    DW1000Ranging.startAsTag(MY_ID, DW1000.MODE_SHORTDATA_FAST_ACCURACY,false);
 }
  
 void loop()

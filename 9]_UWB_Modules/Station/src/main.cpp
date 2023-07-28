@@ -11,7 +11,7 @@
 #include <PubSubClient.h>
 #include <ESP32Time.h>
 
-#define ANCHOR_ADD "83:17:5B:D5:A9:9A:E2:9C"
+#define ANCHOR_ADD "00:00:00:00:00:00:00:00"
 
 #define SPI_SCK 18
 #define SPI_MISO 19
@@ -52,6 +52,18 @@ ESP32Time rtc(12 * 3600);
 ulong rtc_time(ulong);
 
 
+// Detection handling
+const float detect_in = 8/2;
+const float detect_out = 10/2;
+const float detect_thr = 4 /2;
+const uint8_t buff_size = 16;
+uint16_t list_names[buff_size];
+float list_shortest[buff_size];
+
+void detect_init();
+void detect_packet(uint16_t, bool);
+void detection(uint16_t, float);
+
 
 // SETUP
 void setup()
@@ -66,6 +78,8 @@ void setup()
 
   uwb_setup();
   delay(1000);
+
+  detect_init();
 }
  
 
@@ -193,28 +207,23 @@ void uwb_setup()
 
     DW1000.setAntennaDelay(16438);
  
-    //we start the module as an anchor
-    // DW1000Ranging.startAsAnchor("82:17:5B:D5:A9:9A:E2:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY);
- 
-    //DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_RANGE_LOWPOWER, false);
-    // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_SHORTDATA_FAST_LOWPOWER);
-    // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_FAST_LOWPOWER);
-    DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_SHORTDATA_FAST_ACCURACY);
-    // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_FAST_ACCURACY);
-    // DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_LONGDATA_RANGE_ACCURACY);
+    DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_SHORTDATA_FAST_ACCURACY,false);
 }
 
 // Detect UWB
 void uwb_newRange()
 {
+    uint16_t who = DW1000Ranging.getDistantDevice()->getShortAddress();
+    float dist = DW1000Ranging.getDistantDevice()->getRange();
+
+    detection(who,dist);
+
+
     char message[32];
+    sprintf(message, "{\"ID\":\"%X\",\"Dist\":%f}",who,dist);
 
-    uint16_t n = DW1000Ranging.getDistantDevice()->getShortAddress();
-    float r = DW1000Ranging.getDistantDevice()->getRange();
-
-    sprintf(message, "{\"ID\":\"%X\",\"Dist\":%f}",n,r);
-
-    client.publish("detect", message);
+    //client.publish("detect", message);
+    Serial.println(who,HEX);
 
     return;
     Serial.print("from: ");
@@ -250,4 +259,77 @@ ulong rtc_time(ulong value = 0)
 {
   if (value != 0) rtc.setTime(value);
   return rtc.getEpoch();
+}
+
+
+
+void detect_init()
+{
+  for (int i = 0; i < buff_size; i++)
+  {
+    list_names[i] = 100;
+    list_shortest[i] = 100;
+  }
+}
+
+void detection(uint16_t kart, float value)
+{
+  int clr;
+
+  for (int i = 0; i < buff_size; i++)
+  {
+    uint16_t who = list_names[i];
+
+    
+    if (who == 100) 
+    {
+      clr = i; // Make note of a clear index
+      continue;
+    }
+
+    // If the name is already in buffer
+    else if (who == kart)
+    {
+      // Check for out of AOI
+      if (value > detect_out)
+      {
+        // Kart has left Area Of Interest - send detection packet
+        bool right = list_shortest[i] < detect_thr;
+        
+        list_names[i] = 100;
+        list_shortest[i] = 100;
+
+        detect_packet(kart,right);
+        return;
+      }
+
+      // Update shortest
+      else if (value < list_shortest[i])
+      {
+        list_shortest[i] = value;
+      }
+      
+      return;
+    }
+  }
+
+  // Not already in the list - add it in
+  if (value < detect_in)
+  {
+    list_names[clr] = kart;
+    list_shortest[clr] = value;
+  }
+}
+
+void detect_packet(uint16_t who, bool rightlane)
+{
+  char message[128];
+  ulong time = rtc_time();
+
+  //{"Time": 1687638447,"Colour": "red","Lane": "left"}
+  if (rightlane)  sprintf(message, "{\"Time\": \"%u\",\"Colour\": \"%X\",\"Lane\": \"right\"}",time,who);
+  else            sprintf(message, "{\"Time\": \"%u\",\"Colour\": \"%X\",\"Lane\": \"left\"}" ,time,who);
+
+  client.publish("detect", message);
+  Serial.println(who,HEX);
 }
