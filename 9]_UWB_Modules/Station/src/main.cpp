@@ -48,7 +48,7 @@ void uwb_inactiveDevice(DW1000Device*);
 
 
 // RTC INIT
-ESP32Time rtc(12 * 3600);
+ESP32Time rtc(0);
 ulong rtc_time(ulong);
 
 
@@ -81,8 +81,8 @@ void setup()
 
   detect_init();
 }
- 
 
+bool sent = false;
 // MAIN LOOP
 void loop()
 {
@@ -98,6 +98,17 @@ void loop()
 
   client.loop();
   DW1000Ranging.loop();
+
+  ulong time = rtc_time(0);
+  if (time%5 ==0)
+  {
+    
+    if (!sent) Serial.println(time);
+    sent = true;
+    
+  }
+  else sent = false;
+  
 }
 
 
@@ -161,6 +172,9 @@ void mqtt_message(char* topic, byte* msg, unsigned int length)
   if (String(topic) == "timestamp") 
   {
     rtc_time(message.toInt());
+    ulong time = rtc_time(0);
+    Serial.print("Timestamp updated: ");
+    Serial.println(time);
   }
 }
 
@@ -216,14 +230,17 @@ void uwb_newRange()
     uint16_t who = DW1000Ranging.getDistantDevice()->getShortAddress();
     float dist = DW1000Ranging.getDistantDevice()->getRange();
 
+    Serial.println(who,HEX);
+    
     detection(who,dist);
 
+    return;
 
     char message[32];
     sprintf(message, "{\"ID\":\"%X\",\"Dist\":%f}",who,dist);
 
     //client.publish("detect", message);
-    Serial.println(who,HEX);
+    
 
     return;
     Serial.print("from: ");
@@ -255,9 +272,12 @@ void uwb_inactiveDevice(DW1000Device *device)
 
 
 // RTC handler
-ulong rtc_time(ulong value = 0)
+ulong rtc_time(ulong value)
 {
-  if (value != 0) rtc.setTime(value);
+  if (value != 0)
+  {
+    rtc.setTime(value);
+  }
   return rtc.getEpoch();
 }
 
@@ -324,11 +344,11 @@ void detection(uint16_t kart, float value)
 void detect_packet(uint16_t who, bool rightlane)
 {
   char message[128];
-  ulong time = rtc_time();
+  ulong time = rtc_time(0);
 
   //{"Time": 1687638447,"Colour": "red","Lane": "left"}
-  if (rightlane)  sprintf(message, "{\"Time\": %u,\"Colour\": \"%X\",\"Lane\": \"right\"}",time,who);
-  else            sprintf(message, "{\"Time\": %u,\"Colour\": \"%X\",\"Lane\": \"left\"}" ,time,who);
+  if (rightlane)  sprintf(message, "{\"Time\": %u000,\"Colour\": \"%X\",\"Lane\": \"right\"}",time,who);
+  else            sprintf(message, "{\"Time\": %u000,\"Colour\": \"%X\",\"Lane\": \"left\"}" ,time,who);
 
   client.publish("detect", message);
   Serial.println(who,HEX);
