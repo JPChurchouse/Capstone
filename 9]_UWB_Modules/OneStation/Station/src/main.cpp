@@ -20,8 +20,10 @@
 
 
 // WIFI AND MQTT INIT  
-const char* ssid = "Lodge Wireless Internet";
-const char* password = "JulietCharlieHotelQuebec";
+//const char* ssid = "Lodge Wireless Internet";
+//const char* password = "JulietCharlieHotelQuebec";
+const char* ssid = "SPARK-UKRV3Z";
+const char* password = "JollyDuckY92?";
 const char* mqtt_server = "192.168.1.20";
 long lastMsg = 0;
 char msg[50];
@@ -53,9 +55,9 @@ ulong rtc_time(ulong);
 
 
 // Detection handling
-const float detect_in = 8/2;
-const float detect_out = 10/2;
-const float detect_thr = 4 /2;
+const float detect_in = 8;
+const float detect_out = 10;
+const float detect_thr = 4;
 const uint8_t buff_size = 16;
 uint16_t list_names[buff_size];
 float list_shortest[buff_size];
@@ -230,14 +232,18 @@ void uwb_newRange()
     uint16_t who = DW1000Ranging.getDistantDevice()->getShortAddress();
     float dist = DW1000Ranging.getDistantDevice()->getRange();
 
-    Serial.println(who,HEX);
-    
+    //Serial.println(who,HEX);
+    char message[128];
+    ulong time = rtc_time(0);
+    sprintf(message, "Who:%u,dist:%f",who,dist);
+  
+    Serial.println(message);
     detection(who,dist);
 
     return;
 
-    char message[32];
-    sprintf(message, "{\"ID\":\"%X\",\"Dist\":%f}",who,dist);
+    //char message[32];
+    //sprintf(message, "{\"ID\":\"%X\",\"Dist\":%f}",who,dist);
 
     //client.publish("detect", message);
     
@@ -351,5 +357,6 @@ void detect_packet(uint16_t who, bool rightlane)
   else            sprintf(message, "{\"Time\": %u000,\"Colour\": \"%X\",\"Lane\": \"left\"}" ,time,who);
 
   client.publish("detect", message);
+  Serial.println(message);
   Serial.println(who,HEX);
 }
