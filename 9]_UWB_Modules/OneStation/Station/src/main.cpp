@@ -3,6 +3,9 @@
 
 */
 
+// Are we at XKarts or at home?
+//#define XKARTS
+
 // INCLUDES AND DEFINES
 #include <Arduino.h>
 #include <SPI.h>
@@ -11,29 +14,32 @@
 #include <PubSubClient.h>
 #include <ESP32Time.h>
 
-#define ANCHOR_ADD "00:00:00:00:00:00:00:00"
-
 #define SPI_SCK 18
 #define SPI_MISO 19
 #define SPI_MOSI 23
 #define DW_CS 4
 
 
-// WIFI AND MQTT INIT  
-//const char* ssid = "Lodge Wireless Internet";
-//const char* password = "JulietCharlieHotelQuebec";
+// WIFI AND MQTT INIT
+#ifndef XKARTS
+const char* ssid = "Lodge Wireless Internet";
+const char* password = "JulietCharlieHotelQuebec";
+#else
 const char* ssid = "SPARK-UKRV3Z";
 const char* password = "JollyDuckY92?";
+#endif
+
+#define ANCHOR_ADD "00:00:00:00:00:00:00:00"
+
 const char* mqtt_server = "192.168.1.20";
-long lastMsg = 0;
-char msg[50];
+char msg[64];
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
 void wifi_setup();
 void mqtt_setup();
-void mqtt_message(char*, byte *, unsigned int);
+void mqtt_message(char*, byte* , uint);
 void mqtt_reconnect() ;
 void mqtt_subscribe();
 
@@ -42,6 +48,8 @@ void mqtt_subscribe();
 const uint8_t PIN_RST = 27; // reset pin
 const uint8_t PIN_IRQ = 34; // irq pin
 const uint8_t PIN_SS = 4;   // spi select pin
+
+const uint16_t UWB_DELAY = 16438;
 
 void uwb_setup();
 void uwb_newRange();
@@ -55,16 +63,17 @@ ulong rtc_time(ulong);
 
 
 // Detection handling
-const float detect_in = 8;
-const float detect_out = 10;
-const float detect_thr = 4;
+const float detect_in = 80;
+const float detect_out = 100;
+const float detect_thr = 40;
 const uint8_t buff_size = 16;
 uint16_t list_names[buff_size];
-float list_shortest[buff_size];
+uint16_t list_shortest[buff_size];
 
 void detect_init();
 void detect_packet(uint16_t, bool);
 void detection(uint16_t, float);
+
 
 
 // SETUP
@@ -72,15 +81,16 @@ void setup()
 {
   Serial.begin(115200);
 
+  delay(1000);
   wifi_setup();
-  delay(1000);
 
+  delay(1000);
   mqtt_setup();
-  delay(1000);
 
+  delay(1000);
   uwb_setup();
-  delay(1000);
 
+  delay(1000);
   detect_init();
 }
 
@@ -88,29 +98,30 @@ bool sent = false;
 // MAIN LOOP
 void loop()
 {
+  // Wifi reconnect
   if (WiFi.status() != WL_CONNECTED) 
   {
     wifi_setup;
   }
 
+  // MQTT reconnect
   if (!client.connected())
   {
     mqtt_reconnect();
   } 
 
+  // Loops
   client.loop();
   DW1000Ranging.loop();
 
+  // RTC
   ulong time = rtc_time(0);
-  if (time%5 ==0)
+  if (time % 5 == 0)
   {
-    
     if (!sent) Serial.println(time);
     sent = true;
-    
   }
   else sent = false;
-  
 }
 
 
@@ -142,13 +153,15 @@ void mqtt_setup()
 {
   client.setServer(mqtt_server, 1883);
   client.setCallback(mqtt_message);
-  client.publish("init", "hello");
+  while (!client.connected());
+  mqtt_subscribe();
+  client.publish("detection/status", "online");
 }
 
 // Subscribe to MQTT topics
 void mqtt_subscribe()
 {
-client.subscribe("timestamp");
+  client.subscribe("timestamp");
 }
 
 // New MQTT message arrived
@@ -167,7 +180,7 @@ void mqtt_message(char* topic, byte* msg, unsigned int length)
 
   Serial.println();
 
-  if (String(topic) == "command/dock") 
+  if (String(topic) == "detection/command") 
   {
   }
 
@@ -212,43 +225,35 @@ void mqtt_reconnect()
 void uwb_setup()
 {
   //init the configuration
-    SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
-    DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
-    //define the sketch as anchor. It will be great to dynamically change the type of module
-    DW1000Ranging.attachNewRange(uwb_newRange);
-    DW1000Ranging.attachBlinkDevice(uwb_newBlink);
-    DW1000Ranging.attachInactiveDevice(uwb_inactiveDevice);
-    //Enable the filter to smooth the distance
-    //DW1000Ranging.useRangeFilter(true);
+  SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
+  DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
+  //define the sketch as anchor. It will be great to dynamically change the type of module
+  DW1000Ranging.attachNewRange(uwb_newRange);
+  DW1000Ranging.attachBlinkDevice(uwb_newBlink);
+  DW1000Ranging.attachInactiveDevice(uwb_inactiveDevice);
+  //Enable the filter to smooth the distance
+  //DW1000Ranging.useRangeFilter(true);
 
-    DW1000.setAntennaDelay(16438);
- 
-    DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_SHORTDATA_FAST_ACCURACY,false);
+  DW1000.setAntennaDelay(UWB_DELAY);
+
+  DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_SHORTDATA_FAST_ACCURACY,false);
 }
 
 // Detect UWB
 void uwb_newRange()
 {
     uint16_t who = DW1000Ranging.getDistantDevice()->getShortAddress();
-    float dist = DW1000Ranging.getDistantDevice()->getRange();
+    uint16_t dist = DW1000Ranging.getDistantDevice()->getRange() * 10;
 
     //Serial.println(who,HEX);
-    char message[128];
-    ulong time = rtc_time(0);
-    sprintf(message, "Who:%u,dist:%f",who,dist);
+    char message[64];
+    sprintf(message, "Who:%u, Dist:%u", who, dist);
   
     Serial.println(message);
     detection(who,dist);
 
     return;
 
-    //char message[32];
-    //sprintf(message, "{\"ID\":\"%X\",\"Dist\":%f}",who,dist);
-
-    //client.publish("detect", message);
-    
-
-    return;
     Serial.print("from: ");
     Serial.print(DW1000Ranging.getDistantDevice()->getShortAddress(), HEX);
     Serial.print("\t Range: ");
@@ -288,7 +293,7 @@ ulong rtc_time(ulong value)
 }
 
 
-
+// Initalise detection
 void detect_init()
 {
   for (int i = 0; i < buff_size; i++)
@@ -298,65 +303,103 @@ void detect_init()
   }
 }
 
-void detection(uint16_t kart, float value)
+// Detection event
+void detection(uint16_t kart, uint16_t dist)
 {
-  int clr;
+  // Index of a clear slot
+  int clr = 0;
 
+  // Loop through array
   for (int i = 0; i < buff_size; i++)
   {
+    // Kart in [i] slot
     uint16_t who = list_names[i];
 
-    
-    if (who == 100) 
+    // Clear slot
+    if (who == 100)
     {
-      clr = i; // Make note of a clear index
+      // Make note of a clear index
+      clr = i;
+
+      // Move to next index
       continue;
     }
 
-    // If the name is already in buffer
-    else if (who == kart)
+    // Slot is not clear
+    else
+
+    // Slot is in use by another kart
+    if (kart != who)
     {
-      // Check for out of AOI
-      if (value > detect_out)
+      // Move to next index
+      continue;
+    }
+
+    // Slot is not a different Kart ID
+    else
+
+    // This kart ID is already in the array
+    if (kart == who)
+    {
+      // Kart has left AOI -> detection event
+      if (dist > detect_out)
       {
-        // Kart has left Area Of Interest - send detection packet
+        // Did kart cross threshold?
         bool right = list_shortest[i] < detect_thr;
-        
+
+        // Clear index
         list_names[i] = 100;
         list_shortest[i] = 100;
 
+        // Send detection packet
         detect_packet(kart,right);
-        return;
       }
 
-      // Update shortest
-      else if (value < list_shortest[i])
+      // Kart still in AOI
+      else
+
+      // New distance is lower than previous
+      if (dist < list_shortest[i])
       {
-        list_shortest[i] = value;
+        // Update shortest
+        list_shortest[i] = dist;
       }
-      
+
+      // Exit function
       return;
-    }
+    } // {kart == who}
   }
 
-  // Not already in the list - add it in
-  if (value < detect_in)
+  // Kart ID not found -> add it
+  if (dist < detect_in)
   {
+    // Assign parameters to arrays
     list_names[clr] = kart;
-    list_shortest[clr] = value;
+    list_shortest[clr] = dist;
   }
 }
 
+// Send detection packet
 void detect_packet(uint16_t who, bool rightlane)
 {
-  char message[128];
-  ulong time = rtc_time(0);
+  // Message buffer
+  char message[64];
 
-  //{"Time": 1687638447,"Colour": "red","Lane": "left"}
-  if (rightlane)  sprintf(message, "{\"Time\": %u000,\"Colour\": \"%X\",\"Lane\": \"right\"}",time,who);
-  else            sprintf(message, "{\"Time\": %u000,\"Colour\": \"%X\",\"Lane\": \"left\"}" ,time,who);
+  // Get timestamp
+  ulong when = rtc_time(0);
 
-  client.publish("detect", message);
+  // Get lane string
+  char* what;
+  if (rightlane) what = "right";
+  else what = "left";
+
+  // Generate JSON message
+  // {"Time": 1687638447,"Colour": "red","Lane": "left"}
+  sprintf(message, "{\"Time\":%u000,\"Colour\":\"%X\",\"Lane\":\"%s\"}", when, who, what);
+
+  // Publish message
+  client.publish("detection/event", message);
+
+  // Seral print
   Serial.println(message);
-  Serial.println(who,HEX);
 }
