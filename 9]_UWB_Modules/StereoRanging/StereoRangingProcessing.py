@@ -65,9 +65,8 @@ def TxTimestamp():
   client.publish(const_topic_timestamp, now, 1, False)
 
 
-# Get current ms
-def TimeNow():
-  return int(time.time_ns() / 1000000)
+# Get time now ms
+def TimeNow(): return int(round(time.time()*1000))
 
 
 # Process received raw data
@@ -114,6 +113,7 @@ def DataClear(index):
   pass
 
 
+
 # Init MQTT Client and connect
 client = mqtt.Client()
 client.on_connect = cb_MqttOnConnect
@@ -121,11 +121,11 @@ client.on_message = cb_MqttOnReceive
 client.connect(const_mqtt_address, const_mqtt_port, 60)
 #client.loop_forever()
 
+
 # Main While loop
 def main():
   while True:
     client.loop(timeout=1.0, max_packets=1)     # Run MQTT stuff
-
 
 
 if __name__ == "__main__":
