@@ -48,7 +48,7 @@ def MqttDisconnect():
 
 # Func to publish to mqtt
 def MqttPublish(topic, payload):
-  client.publish(topic, payload, 1, True)
+  client.publish(topic, payload, 1, False)
   return
 
 
@@ -66,12 +66,12 @@ client.on_message = cb_MqttOnReceive
 client.connect(mqtt_address, mqtt_port, 60)
 #client.loop_forever()
 
-stations = ["one","two","two","two","one","two","one"]
+stations = ["left","right","right","right","left","right","left"]
 karts = ["a","b","a","b","a","b","a"]
 ranges = [1.2,3.4,1.6,2.0,4.3,1.0,0.6]
 
 def gimme(index):
-  json = "{\"Station\":\""+stations[index]+"\",\"Time\":"+str(TimeNow())+",\"List\":[{\"Kart\":\""+karts[index]+"\",\"Range\":"+str(ranges[index])+"}]}"
+  json = "{\"Station\":\""+stations[index]+"\",\"Time\":"+str(TimeNow())+",\"List\":[{\"ID\":\""+karts[index]+"\",\"Range\":"+str(ranges[index])+"}]}"
 
   print(json)
   return json
@@ -82,6 +82,7 @@ def main():
     MqttPublish(topic_rawinfo,gimme(i))
     print(i)
     time.sleep(1)
+  MqttDisconnect()
   return
 
 
