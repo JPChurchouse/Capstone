@@ -72,7 +72,7 @@ def IndexFromKartId(id):
 
 
 # Add a detection value
-def AddRange(id, station, time, value):
+def AddValue(id, station, time, value):
 
   # Validate the station
   han_station = station
@@ -99,7 +99,7 @@ def AddRange(id, station, time, value):
   master [han_kart] [han_station] [handle_value] [write_index] = value
 
   # Increment the index, reset if at end, write
-  write_index = write_index + 1 if write_index + 1 <= size_buffer else 0
+  write_index = write_index+1 if write_index+1 <= size_buffer else 0
   # kart -> station (L or R) -> update next write index
   master [han_kart] [han_station] [handle_index] = write_index
 
@@ -120,8 +120,8 @@ def CheckForDetections():
     if val == 0: continue
 
     # Check if the kart meets detection criteria
-    # (kart -> last_update) + timeout < now, -> detection
-    if (val + detection_timeout < now ):
+    # (kart -> last_update)+timeout < now, -> detection
+    if (val+detection_timeout < now ):
       out.append(index)
 
   # Return the array of kart indecies
@@ -136,7 +136,7 @@ def GenerateDetectionPacket(index):
   lane = WhichLane(index)
 
   # Generate string
-  json = "{\"Time\": " + now + ",\"Colour\": \"" + colour + "\",\"Lane\": \"" + lane + "\"}"
+  json = "{\"Time\": "+now+",\"Colour\": \""+colour+"\",\"Lane\": \""+lane+"\"}"
   print(json)
 
   # Overright this kart's index

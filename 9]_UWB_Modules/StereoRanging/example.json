@@ -1,7 +1,6 @@
 {
   "Station": "one",
   "Time": 12345678,
-  "Period": 200,
   "List": [
     {
       "Kart": "01",

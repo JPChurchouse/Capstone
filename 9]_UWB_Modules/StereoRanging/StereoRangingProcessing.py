@@ -2,7 +2,6 @@
 #pip install paho-mqtt
 
 # cb_Function   -> callback, dont call directly
-# TxFunction    -> Transmit
 # MqttFunction  -> MQTT function
 
 # Import libraries
@@ -15,54 +14,52 @@ import json
 import DataHandling as data
 
 
-
-# Topics
-const_topic_status    = "detect/status"
-const_topic_rawinfo   = "detect/info"
-const_topic_timestamp = "detect/ts"
-const_topic_detection = "race/detect"
-const_mqtt_address    = "192.168.1.20"     # MQTT broker address - will be "192.168.1.20" on site
-const_mqtt_port       = 1883               # Port number for MQTT broker connection
+# MQTT constants
+topic_status    = "detect/status"
+topic_rawinfo   = "detect/info"
+topic_timestamp = "detect/ts"
+topic_detection = "race/detect"
+mqtt_address    = "192.168.1.20"     # MQTT broker address - will be "192.168.1.20" on site
+mqtt_port       = 1883               # Port number for MQTT broker connection
 
 
 # Callback func for when a message is RXD
 def cb_MqttOnReceive(client, userdata, msg):
-  print(msg.topic+" "+str(msg.payload))
-  if msg.topic == const_topic_rawinfo:
-      DataParse(msg.payload.decode('UTF-8'))
+  print("MQTT received:\n"+msg.topic+" - "+str(msg.payload)+"\n")
+  if msg.topic == topic_rawinfo:
+      DataParseAndProcess(msg.payload.decode('UTF-8'))
+  return
 
 
 # Callback func for when client connects
 def cb_MqttOnConnect(client, userdata, flags, rc):
   print("Connected with result code "+str(rc))
-  client.will_set(const_topic_status,"Offline",1,True)    # Set will
-  client.subscribe(const_topic_rawinfo)                   # Sub to detection commands
+  client.will_set(topic_status,"Offline",1,True)    # Set will
+  client.subscribe(topic_rawinfo)                   # Sub to detection commands
   #client.subscribe("#")
-  TxStatus("Online")
+  MqttPublish(topic_status,"Online")
+  return
 
 
 # Disconnect the client
 def MqttDisconnect():
-  TxStatus("Offline")
+  MqttPublish(topic_status,"Offline")
   client.disconnect()
+  return
 
 
-# Func to update the network on this devices status
-def TxStatus(msg):
-  client.publish(const_topic_status, msg, 1, True)
-
-
-# Func to publish detction info
-def TxDetection(colour,lane):
-  now = str(TimeNow)
-  json = "{\"Time\": " + now + ",\"Colour\": \"" + colour + "\",\"Lane\": \"" + lane + "\"}"
-  client.publish(const_topic_detection, json, 1, False)
+# Func to publish to mqtt
+def MqttPublish(topic, payload):
+  client.publish(topic, payload, 1, True)
+  return
 
 
 # Update ESP32 UWB timestamps
 def TxTimestamp():
-  now = str(TimeNow)
-  client.publish(const_topic_timestamp, now, 1, False)
+  now = str(TimeNow())
+  print("Sending timestamp: "+now+"\n")
+  client.publish(topic_timestamp, now, 1, False)
+  return
 
 
 # Get time now ms
@@ -71,46 +68,58 @@ def TimeNow(): return int(round(time.time()*1000))
 
 # Process received raw data
 # https://www.w3schools.com/python/python_json.asp
-def DataParse(json):
+def DataParseAndProcess(raw):
+  print("Parsing data:")
+  clean = raw.replace("\n","").replace("\r","").replace(" ","")
+  print(clean)
 
   # Chance of a JSON failure
   try:
 
     # Import JSON data as a dictionary
-    my_data = json.loads(json)
+    my_data = json.loads(clean)
 
     # Read in station and time information
     station = my_data["Station"]
     time = my_data["Time"]
-    period = my_data["Period"]
+    print("Stat: "+station+", Time: "+str(time))
 
     # Iterate over each kart in the received data
     for kart in my_data["List"]:
 
       # Read kart ID and range
       id = kart["Kart"]
-      range = kart["Range"]
+      value = kart["Range"]
+      print("Kart: "+id+", Val: "+str(value))
 
-      # Process this data
-      DataProcess(station, time, id, range)
-
-    return
+      # Add this reading to the database
+      data.AddValue(id, station, time, value)
+    
+    # Run detection checker
+    DataCheckDetections()
 
   # Catch any exceptions, show them, return
-  except Exception:
-    print(Exception)
-    print(json)
-    return
+  except Exception as e:
+    print("Exception:\n",e)
+    print()
+    MqttPublish(topic_status,"Error_Parsing")
+
+  print()
+  return
 
 
-# Process parsed data into storage
-def DataProcess(station, time, kart, distance):
-  pass
+# Func to check for detections and then send them
+def DataCheckDetections():
 
-# Reset data storage
-# index of kart, 0 for all
-def DataClear(index):
-  pass
+  # Read array of detected karts
+  arr = data.CheckForDetections()
+
+  # Iterate over each index (kart) that has been detected
+  for index in arr:
+    payload = data.GenerateDetectionPacket(index)
+    MqttPublish(topic_detection, payload)
+
+  return
 
 
 
@@ -118,15 +127,41 @@ def DataClear(index):
 client = mqtt.Client()
 client.on_connect = cb_MqttOnConnect
 client.on_message = cb_MqttOnReceive
-client.connect(const_mqtt_address, const_mqtt_port, 60)
+client.connect(mqtt_address, mqtt_port, 60)
 #client.loop_forever()
 
 
-# Main While loop
+# Main while-loop
 def main():
-  while True:
-    client.loop(timeout=1.0, max_packets=1)     # Run MQTT stuff
 
+  # Init our database
+  data.NewRace()
+
+  TxTimestamp()
+
+  # Iteration value
+  delay = 3000
+  timeout = 0
+
+  # Main while-loop
+  while True:
+
+    # Run MQTT stuff
+    client.loop(timeout=1.0, max_packets=1)
+
+    # Detection checking
+    if TimeNow() > timeout: # - not assigning TimeNow to a variable so theres no need for multiple read write operations
+      timeout = TimeNow()+delay
+      DataCheckDetections()
+
+      mod = TimeNow() % (20*delay)
+      if mod < delay:
+        TxTimestamp()
+        MqttPublish(topic_status,"Online")
+
+    continue
+
+  return
 
 if __name__ == "__main__":
     sys.exit(main())
