@@ -34,7 +34,7 @@ namespace SplitlaneTracker.Server
 
     public void Race_Start()
     {
-      _ = Mqtt_Send(new Services.Mqtt.Packet("command/detector", "start"));
+      _ = Mqtt_Send(new Services.Mqtt.Packet("detect/cmd", "start"));
       Race_SetStatus(Status.Running);
     }
     public void Race_Expirey(int span)
@@ -43,7 +43,7 @@ namespace SplitlaneTracker.Server
     }
     public void Race_Stop()
     {
-      _ = Mqtt_Send(new Services.Mqtt.Packet("command/detector", "stop"));
+      _ = Mqtt_Send(new Services.Mqtt.Packet("detect/cmd", "stop"));
       Race_SetStatus(Status.Complete);
 
       string dir = Environment.CurrentDirectory + "\\output";

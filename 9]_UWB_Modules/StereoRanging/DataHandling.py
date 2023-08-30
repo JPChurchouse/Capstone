@@ -172,7 +172,6 @@ def GenerateDetectionPacket(index) :
 
   # Generate string
   json = "{\"Time\":"+time+",\"Colour\":\""+colour+"\",\"Lane\":\""+lane+"\"}"
-  print(json)
 
   # Overright this kart's index
   master [index] = NewKart()

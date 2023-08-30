@@ -60,21 +60,21 @@ namespace SplitlaneTracker.Server
       }
 
       // New race config
-      else if (topic.Contains("raceinfo"))
+      else if (topic.Contains("race/config"))
       {
         log.log("raceinfo");
         Race_New(message);
       }
 
       // Race command
-      else if (topic.Contains("command/race"))
+      else if (topic.Contains("race/cmd"))
       {
         log.log("command/race");
         NewRaceCommand(message);
       }
 
       // Detection
-      else if (topic.Contains("status/detection"))
+      else if (topic.Contains("detect/status"))
       {
         log.log("status/detection");
         Detection_status = message.Contains("Online") ? Status.Online : Status.Offline;
@@ -86,7 +86,7 @@ namespace SplitlaneTracker.Server
       else if (topic.Contains("status")) { }
 
       // Detection
-      else if (topic.Contains("detect"))
+      else if (topic.Contains("race/detect"))
       {
         log.log("detect");
         Race_Detection(message);

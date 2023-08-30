@@ -20,7 +20,7 @@ namespace SplitlaneTracker.Server
       Server_status = stat;
       log.log($"ServerStatus status = {Server_status}");
 
-      _ = Mqtt_Send(new Services.Mqtt.Packet("status/server", $"{Server_status}"));
+      _ = Mqtt_Send(new Services.Mqtt.Packet("server/status", $"{Server_status}"));
     }
   }
 }
