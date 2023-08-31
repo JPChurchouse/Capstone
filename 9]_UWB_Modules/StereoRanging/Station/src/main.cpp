@@ -9,7 +9,6 @@
 #include "DW1000Ranging.h"     //https://github.com/thotro/arduino-dw1000
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include <ESP32Time.h>
 
 #define ANCHOR_ADD "00:00:00:00:00:00:00:00"
 
@@ -18,6 +17,10 @@
 #define SPI_MOSI 23
 #define DW_CS 4
 
+#define topic_rawdata "detect/info"
+#define topic_timestamp "detect/ts"
+#define topic_status "detect/status/one"
+#define topic_cmd "detect/cmd/one"
 
 // WIFI AND MQTT INIT  
 const char* ssid = "Lodge Wireless Internet";
@@ -40,6 +43,7 @@ void mqtt_subscribe();
 const uint8_t PIN_RST = 27; // reset pin
 const uint8_t PIN_IRQ = 34; // irq pin
 const uint8_t PIN_SS = 4;   // spi select pin
+const uint16_t uwb_adel = 16438;
 
 void uwb_setup();
 void uwb_newRange();
@@ -48,8 +52,9 @@ void uwb_inactiveDevice(DW1000Device*);
 
 
 // RTC INIT
-ESP32Time rtc(0);
-ulong rtc_time(ulong);
+uint64_t time_offset = 0;
+uint64_t time_get();
+uint64_t time_set(uint64_t);
 
 
 // Detection handling
@@ -83,7 +88,6 @@ void setup()
 }
 
 bool sent = false;
-uint count = 0;
 // MAIN LOOP
 void loop()
 {
@@ -100,8 +104,8 @@ void loop()
   client.loop();
   DW1000Ranging.loop();
 
-  ulong time = rtc_time(0);
-  if (time%5 ==0)
+  uint64_t time = time_get();
+  if (time%100 == 0)
   {
     
     if (!sent) Serial.println(time);
@@ -109,17 +113,6 @@ void loop()
     
   }
   else sent = false;
-
-  if (count < 10)
-  {
-    char message[128];
-    char topic[16];
-    ulong time = rtc_time(0);
-    sprintf(message, "{\"Time\": %u000,\"Count\": \"%u\",\"Millis\": \"%u\"}",time,count,millis());
-    sprintf(topic,"debug/%u",count);
-    client.publish(topic, message);
-  }
-  if (count++ >= 10000) count = 0;
 }
 
 
@@ -151,13 +144,14 @@ void mqtt_setup()
 {
   client.setServer(mqtt_server, 1883);
   client.setCallback(mqtt_message);
-  client.publish("init", "hello");
+  client.publish(topic_status, "online");
 }
 
 // Subscribe to MQTT topics
 void mqtt_subscribe()
 {
-client.subscribe("timestamp");
+  client.subscribe(topic_timestamp);
+  client.subscribe(topic_cmd);
 }
 
 // New MQTT message arrived
@@ -167,25 +161,29 @@ void mqtt_message(char* topic, byte* msg, unsigned int length)
   Serial.print(topic);
   Serial.print(". Message: ");
   String message;
+  uint64_t count = 0;
   
+  // Process message
   for (int i = 0; i < length; i++) 
   {
-    Serial.print((char)msg[i]);
-    message += (char)msg[i];
+    char c = (char) msg[i];
+    message += c;
+
+    uint16_t val = uint16_t(c - '0');
+    count = count * 10 + val;
+    Serial.println(count);
   }
 
-  Serial.println();
+  Serial.println(message);
 
-  if (String(topic) == "detect/cmd") 
+  if (String(topic) == topic_cmd) 
   {
   }
 
-  if (String(topic) == "detect/ts") 
+  if (String(topic) == topic_timestamp) 
   {
-    rtc_time(message.toInt());
-    ulong time = rtc_time(0);
-    Serial.print("Timestamp updated: ");
-    Serial.println(time);
+    Serial.println(count);
+    time_set(count);
   }
 }
 
@@ -221,18 +219,18 @@ void mqtt_reconnect()
 void uwb_setup()
 {
   //init the configuration
-    SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
-    DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
-    //define the sketch as anchor. It will be great to dynamically change the type of module
-    DW1000Ranging.attachNewRange(uwb_newRange);
-    DW1000Ranging.attachBlinkDevice(uwb_newBlink);
-    DW1000Ranging.attachInactiveDevice(uwb_inactiveDevice);
-    //Enable the filter to smooth the distance
-    //DW1000Ranging.useRangeFilter(true);
+  SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
+  DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
+  //define the sketch as anchor. It will be great to dynamically change the type of module
+  DW1000Ranging.attachNewRange(uwb_newRange);
+  DW1000Ranging.attachBlinkDevice(uwb_newBlink);
+  DW1000Ranging.attachInactiveDevice(uwb_inactiveDevice);
+  //Enable the filter to smooth the distance
+  //DW1000Ranging.useRangeFilter(true);
 
-    DW1000.setAntennaDelay(16438);
- 
-    DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_SHORTDATA_FAST_ACCURACY,false);
+  DW1000.setAntennaDelay(uwb_adel);
+
+  DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_SHORTDATA_FAST_ACCURACY,false);
 }
 
 // Detect UWB
@@ -282,14 +280,15 @@ void uwb_inactiveDevice(DW1000Device *device)
 }
 
 
-// RTC handler
-ulong rtc_time(ulong value)
+// Time
+uint64_t time_get()
 {
-  if (value != 0)
-  {
-    rtc.setTime(value);
-  }
-  return rtc.getEpoch();
+  return time_offset + millis();
+}
+uint64_t time_set(uint64_t value)
+{
+  time_offset = value - millis();
+  return time_get();
 }
 
 
@@ -355,11 +354,11 @@ void detection(uint16_t kart, float value)
 void detect_packet(uint16_t who, bool rightlane)
 {
   char message[128];
-  ulong time = rtc_time(0);
+  uint64_t time = time_get();
 
   //{"Time": 1687638447,"Colour": "red","Lane": "left"}
-  if (rightlane)  sprintf(message, "{\"Time\": %u000,\"Colour\": \"%X\",\"Lane\": \"right\"}",time,who);
-  else            sprintf(message, "{\"Time\": %u000,\"Colour\": \"%X\",\"Lane\": \"left\"}" ,time,who);
+  if (rightlane)  sprintf(message, "{\"Time\": %u,\"Colour\": \"%X\",\"Lane\": \"right\"}",time,who);
+  else            sprintf(message, "{\"Time\": %u,\"Colour\": \"%X\",\"Lane\": \"left\"}" ,time,who);
 
   client.publish("detect", message);
   Serial.println(who,HEX);
