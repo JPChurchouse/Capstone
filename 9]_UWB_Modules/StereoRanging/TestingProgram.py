@@ -374,8 +374,8 @@ def main() :
   GenerateMasterList()
   StartRace()
   SendIt()
-  EndRace()
   MqttWait(5000)
+  EndRace()
   MqttDisconnect()
   return
 
