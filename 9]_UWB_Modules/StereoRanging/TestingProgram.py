@@ -25,13 +25,17 @@ topic_command   = "race/cmd"
 mqtt_address    = "192.168.1.20"     # MQTT broker address - will be "192.168.1.20" on site
 mqtt_port       = 1883               # Port number for MQTT broker connection
 
+# Get time now ms
+def TimeNow(): return int(round(time.time()*1000))
 
-
+file_infodump = open("debug\\" + str(TimeNow()) + "json","a")
 
 
 # Callback func for when a message is RXD
 def cb_MqttOnReceive(client, userdata, msg):
-  print("MQTT received:\n"+msg.topic+" - "+str(msg.payload)+"\n")
+  info = "MQTT received:\n"+msg.topic+" - "+str(msg.payload)+"\n"
+  print(info)
+  file_infodump.write(info)
   return
 
 
@@ -49,7 +53,7 @@ client = mqtt.Client()
 client.on_connect = cb_MqttOnConnect
 client.on_message = cb_MqttOnReceive
 client.connect(mqtt_address, mqtt_port, 60)
-#client.loop_forever()
+client.loop_start()
 
 # Disconnect the client
 def MqttDisconnect():
@@ -60,6 +64,7 @@ def MqttDisconnect():
 
 # Func to publish to mqtt
 def MqttPublish(topic, payload):
+  print ("Publishing: \""+ topic +"\", \""+ payload +"\"\r\n")
   client.publish(topic, payload, 1, False)
   return
 
@@ -73,11 +78,6 @@ def DebugThat(info):
   f.close()
 
 
-# Get time now ms
-def TimeNow(): return int(round(time.time()*1000))
-
-
-
 
 list_lanes = ["left","right"]
 list_karts = ["A","B","C","D"]
@@ -89,7 +89,7 @@ ran_far = [350, 600, 100] # values for a far reading - deci metres
 ran_laptime = [8, 16, 1/1000] # lap time
 ran_readtime = [400, 800, 1] # time between readings
 ran_bias = [90, 140, 100] # driver speed multiplier
-def ran(arr):return random.randint(arr[0],arr[1])/arr[2]
+def ran(arr) : return random.randint(arr[0],arr[1]) / arr[2]
 
 data_kartinfo = {}
 data_eventlist = []
@@ -138,16 +138,19 @@ def GetJsonLaps():
 def GetJsonConfig():
   return "{\"KartList\":["+GetJsonKartList()+"],\"RequiredLaps\":["+GetJsonLaps()+"]}"
 
-def StartRace():
+def InitRace():
   info = GetJsonConfig()
   print(info)
   MqttPublish(topic_config, info)
-  time.sleep(3)
+  return
+
+def StartRace():
   MqttPublish(topic_command, "start")
-  time.sleep(2)
+  return
 
 def EndRace():
   MqttPublish(topic_command, "stop")
+  return
 
 def SendIt():
   filename = "debug/"+str(TimeNow()) + "_.json"
@@ -362,9 +365,9 @@ def GenReadList(id,range):
 
 # Main while-loop
 def main() :
-  StartRace()
+  InitRace()
   GenerateMasterList()
-  
+  StartRace()
   SendIt()
   MqttDisconnect()
   return
