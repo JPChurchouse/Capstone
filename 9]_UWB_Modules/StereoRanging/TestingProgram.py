@@ -61,13 +61,16 @@ def MqttDisconnect():
   client.disconnect()
   return
 
-
 # Func to publish to mqtt
 def MqttPublish(topic, payload):
   print ("Publishing: \""+ topic +"\", \""+ payload +"\"\r\n")
   client.publish(topic, payload, 1, False)
   return
 
+def MqttWait(ms):
+  cont = TimeNow() + ms
+  while TimeNow() < cont : pass
+  return
 
 def DebugThat(info):
   info = info.replace("\'","\"")
@@ -369,6 +372,8 @@ def main() :
   GenerateMasterList()
   StartRace()
   SendIt()
+  EndRace()
+  MqttWait(1000)
   MqttDisconnect()
   return
 
