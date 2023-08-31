@@ -127,7 +127,7 @@ def GetJsonKartList():
     info += "{\"Colour\":\""
     info += kart
     info += "\",\"Number\":"
-    info += num
+    info += str(num)
     info += "}"
 
   return info
@@ -136,7 +136,7 @@ def GetJsonLaps():
   return str(list_lapsinfo[0])+","+str(list_lapsinfo[1])+","+str(list_lapsinfo[2])
 
 def GetJsonConfig():
-  info = "{\"KartList\":["+GetJsonKartList()+"],\"RequiredLaps\":["+GetJsonLaps()+"]}"
+  return "{\"KartList\":["+GetJsonKartList()+"],\"RequiredLaps\":["+GetJsonLaps()+"]}"
 
 def StartRace():
   info = GetJsonConfig()
@@ -361,6 +361,8 @@ def GenReadList(id,range):
 
 # Main while-loop
 def main() :
+  print(GetJsonConfig())
+  return
   GenerateMasterList()
   StartRace()
 
