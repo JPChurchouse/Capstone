@@ -21,13 +21,13 @@
 #define topic_timestamp "detect/ts"
 #define topic_status "detect/status/one"
 #define topic_cmd "detect/cmd/one"
+#define station_name "left"
 
 // WIFI AND MQTT INIT  
 const char* ssid = "Lodge Wireless Internet";
 const char* password = "JulietCharlieHotelQuebec";
 const char* mqtt_server = "192.168.1.20";
-long lastMsg = 0;
-char msg[50];
+char msg[64];
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -51,23 +51,24 @@ void uwb_newBlink(DW1000Device*);
 void uwb_inactiveDevice(DW1000Device*);
 
 
-// RTC INIT
+// TIMEKEEPING
 uint64_t time_offset = 0;
 uint64_t time_get();
 uint64_t time_set(uint64_t);
 
 
 // Detection handling
-const float detect_in = 8/2;
-const float detect_out = 10/2;
-const float detect_thr = 4 /2;
-const uint8_t buff_size = 16;
-uint16_t list_names[buff_size];
-float list_shortest[buff_size];
+const float read_max = 6.0;
+const uint16_t read_period = 100;
+uint64_t read_lastreading = 0;
+String read_packet = "";
+const uint8_t read_buffsize = 10;
+float read_list_readings [read_buffsize];
+uint16_t read_list_ids [read_buffsize];
 
-void detect_init();
-void detect_packet(uint16_t, bool);
-void detection(uint16_t, float);
+void read_clear();
+void read_addreading(uint16_t, float);
+void read_sendpacket();
 
 
 // SETUP
@@ -84,9 +85,12 @@ void setup()
   uwb_setup();
   delay(1000);
 
-  detect_init();
+  read_clear();
 }
 
+void infrequent(uint64_t);
+
+int period = 100;
 bool sent = false;
 // MAIN LOOP
 void loop()
@@ -105,16 +109,26 @@ void loop()
   DW1000Ranging.loop();
 
   uint64_t time = time_get();
-  if (time%100 == 0)
+  if (time % period == 0)
   {
-    
-    if (!sent) Serial.println(time);
+    if (!sent) infrequent(time);
     sent = true;
-    
   }
   else sent = false;
 }
-
+void infrequent(uint64_t now)
+{
+  if (now % (period * 100) == 0)
+  {
+    for (int i = 0; i < 6; i++)
+    {
+      read_list_ids [i] = i;
+      read_list_readings [i] = (i * i - i) + 2.0/i;
+    }
+  }
+  Serial.println(now);
+  read_sendpacket();
+}
 
 // Setup Wifi
 void wifi_setup() 
@@ -240,8 +254,9 @@ void uwb_newRange()
     float dist = DW1000Ranging.getDistantDevice()->getRange();
 
     Serial.println(who,HEX);
+    if (dist > read_max) return;
     
-    detection(who,dist);
+    read_addreading(who,dist);
 
     return;
 
@@ -291,75 +306,89 @@ uint64_t time_set(uint64_t value)
   return time_get();
 }
 
-
-
-void detect_init()
+void read_clear()
 {
-  for (int i = 0; i < buff_size; i++)
+  for (int i = 0; i < read_buffsize; i++)
   {
-    list_names[i] = 100;
-    list_shortest[i] = 100;
+    read_list_ids [i] = 0;
+    read_list_readings [i] = 0;
   }
 }
 
-void detection(uint16_t kart, float value)
+void read_addreading(uint16_t who, float dist)
 {
-  int clr;
+  // Note a free slot
+  int free = -1;
 
-  for (int i = 0; i < buff_size; i++)
+  // Iterate over each item in the array
+  for (int i = 0; i < read_buffsize; i++)
   {
-    uint16_t who = list_names[i];
+    // ID at index
+    uint16_t id = read_list_ids [i];
 
-    
-    if (who == 100) 
+    // Overwrite
+    if (id == who)
     {
-      clr = i; // Make note of a clear index
-      continue;
-    }
-
-    // If the name is already in buffer
-    else if (who == kart)
-    {
-      // Check for out of AOI
-      if (value > detect_out)
-      {
-        // Kart has left Area Of Interest - send detection packet
-        bool right = list_shortest[i] < detect_thr;
-        
-        list_names[i] = 100;
-        list_shortest[i] = 100;
-
-        detect_packet(kart,right);
-        return;
-      }
-
-      // Update shortest
-      else if (value < list_shortest[i])
-      {
-        list_shortest[i] = value;
-      }
-      
+      read_list_readings [i] = dist;
       return;
     }
+
+    // Note a free slot
+    if (id == 0 && free == -1) free = i;
   }
 
-  // Not already in the list - add it in
-  if (value < detect_in)
-  {
-    list_names[clr] = kart;
-    list_shortest[clr] = value;
-  }
+  // All slots are taken by other IDs (shouldn't be possible)
+  if (free == -1) return;
+
+  // Write values at free index
+  read_list_ids [free] = who;
+  read_list_readings [free] = dist;
+
+  return;
 }
 
-void detect_packet(uint16_t who, bool rightlane)
+// Generate packet
+void read_sendpacket()
 {
-  char message[128];
-  uint64_t time = time_get();
+  // Check ther is actually some data
+  bool ret = true;
+  for (int i = 0; i < read_buffsize; i++)
+  {
+    if (read_list_ids [i] == 0) continue;
+    ret = false;
+    break;
+  }
+  if (ret) return;
 
-  //{"Time": 1687638447,"Colour": "red","Lane": "left"}
-  if (rightlane)  sprintf(message, "{\"Time\": %u,\"Colour\": \"%X\",\"Lane\": \"right\"}",time,who);
-  else            sprintf(message, "{\"Time\": %u,\"Colour\": \"%X\",\"Lane\": \"left\"}" ,time,who);
+  // Init buffer and time val
+  char m[512];
+  uint64_t now = time_get();
 
-  client.publish("detect", message);
-  Serial.println(who,HEX);
+  // Packet header
+  sprintf(m, "{\"Station\":\"%s\",\"Time\":%u,\"List\":[", station_name, now);
+
+  // Bring in the readings
+  for (int i = 0; i < read_buffsize; i++)
+  {
+    // Read values
+    uint16_t id = read_list_ids [i];
+    float dist = read_list_readings [i];
+
+    // If not a reading -> continue
+    if (id == 0) continue;
+
+    // Append this info to the string
+    sprintf(m + strlen(m), "{\"ID\":\"%X\",\"Range\":%f},", id, dist);
+  }
+
+  // End the packet [-1 to overwrite the last comma]
+  sprintf(m + strlen(m) - 1, "]}");
+
+  // Send
+  client.publish(topic_rawdata, m);
+
+  // Clear the arrays
+  read_clear();
+
+  return;
 }
