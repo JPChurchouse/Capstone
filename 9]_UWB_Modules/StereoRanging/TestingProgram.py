@@ -361,13 +361,9 @@ def GenReadList(id,range):
 
 # Main while-loop
 def main() :
-  print(GetJsonConfig())
-  return
   GenerateMasterList()
   StartRace()
-
   SendIt()
-
   MqttDisconnect()
   return
 
