@@ -57,7 +57,7 @@ client.loop_start()
 
 # Disconnect the client
 def MqttDisconnect():
-  MqttPublish(topic_status,"Offline")
+  #MqttPublish(topic_status,"Offline")
   client.disconnect()
   return
 
@@ -152,7 +152,7 @@ def StartRace():
   return
 
 def EndRace():
-  MqttPublish(topic_command, "stop")
+  MqttPublish(topic_command, "end")
   return
 
 def SendIt():
@@ -373,7 +373,7 @@ def main() :
   StartRace()
   SendIt()
   EndRace()
-  MqttWait(1000)
+  MqttWait(5000)
   MqttDisconnect()
   return
 
