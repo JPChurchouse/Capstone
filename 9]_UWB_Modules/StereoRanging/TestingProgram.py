@@ -83,12 +83,12 @@ list_lanes = ["left","right"]
 list_karts = ["A","B","C","D"]
 list_lapsinfo = [4,4,10]
 
-ran_numread = [5, 20, 1] # number of readings per detection
+ran_numread = [5, 15, 1] # number of readings per detection
 ran_close = [50, 400, 100] # values for a close reading - deci metres
 ran_far = [350, 600, 100] # values for a far reading - deci metres
-ran_laptime = [6, 10, 1/1000] # lap time
-ran_readtime = [100, 3000, 1] # time between readings
-ran_bias = [90, 150, 100] # driver speed multiplier
+ran_laptime = [8, 16, 1/1000] # lap time
+ran_readtime = [400, 800, 1] # time between readings
+ran_bias = [90, 140, 100] # driver speed multiplier
 def ran(arr):return random.randint(arr[0],arr[1])/arr[2]
 
 data_kartinfo = {}
@@ -140,10 +140,11 @@ def GetJsonConfig():
 
 def StartRace():
   info = GetJsonConfig()
+  print(info)
   MqttPublish(topic_config, info)
-  time.sleep(2)
+  time.sleep(3)
   MqttPublish(topic_command, "start")
-  time.sleep(1)
+  time.sleep(2)
 
 def EndRace():
   MqttPublish(topic_command, "stop")
@@ -361,8 +362,9 @@ def GenReadList(id,range):
 
 # Main while-loop
 def main() :
-  GenerateMasterList()
   StartRace()
+  GenerateMasterList()
+  
   SendIt()
   MqttDisconnect()
   return
