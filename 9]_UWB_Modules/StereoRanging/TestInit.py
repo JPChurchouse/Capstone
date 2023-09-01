@@ -38,10 +38,6 @@ def cb_MqttOnReceive(client, userdata, msg):
 # Callback func for when client connects
 def cb_MqttOnConnect(client, userdata, flags, rc):
   print("Connected with result code "+str(rc))
-  #client.will_set(topic_status,"Offline",1,True)    # Set will
-  #client.subscribe(topic_rawinfo)                   # Sub to detection commands
-  #client.subscribe("#")
-  #MqttPublish(topic_status,"Online")
   return
 
 # Init MQTT Client and connect
@@ -53,7 +49,6 @@ client.loop_start()
 
 # Disconnect the client
 def MqttDisconnect():
-  #MqttPublish(topic_status,"Offline")
   client.disconnect()
   return
 
@@ -72,8 +67,8 @@ def MqttWait(ms):
 
 
 list_lanes = ["left","right"]
-list_karts = ["01"]
-list_lapsinfo = [8,8,20]
+list_karts = ["1","2"]
+list_lapsinfo = [2,2,6]
 
 
 
@@ -135,12 +130,7 @@ def GenReadList(id,range):
 def main() :
   InitRace()
   StartRace()
-  #MqttWait(5000)
-  #EndRace()
-  #MqttDisconnect()
   return
-
-
 
 
 if __name__ == "__main__":

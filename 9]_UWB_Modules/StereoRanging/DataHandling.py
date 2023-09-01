@@ -207,8 +207,28 @@ def WhichLane(index) :
       sum_r += r
       cnt_r += 1
 
+
   # Invalid arguments
-  if cnt_l == 0 or cnt_r == 0 : return invalid
+  
+  # If there are NULL readings on LEFT side...
+  if cnt_l == 0 :
+    # ... and NULL readings on RIGHT side...
+    if cnt_r == 0 :
+      # ...there are NULL readings total so RETURN ERROR.
+      return invalid
+    
+    # There are NULL readings on the LEFT, but VALID readings on RIGHT...
+    else:
+      # ...must be closer to right so RETURN "RIGHT".
+      return "right"
+
+  # There are VALID readings on the LEFT, but if there are NULL readings on the right...
+  elif cnt_r == 0 :
+    # ...must be closer to left so RETURN "LEFT"
+    return "left"
+  
+  # There are VALID reading on BOTH sides so calculate.
+
 
   # Average
   avg_l = sum_l / cnt_l
