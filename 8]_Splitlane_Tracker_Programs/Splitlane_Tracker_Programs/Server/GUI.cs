@@ -191,7 +191,7 @@ namespace SplitlaneTracker.Server
     private void SettingsWindow_Closing(object? sender, CancelEventArgs e)
     {
       var res = MessageBox.Show(
-        "Service needs to be restarted for changes to take effect. Close now?",
+        $"Broker IP: {Properties.Settings.Default.MqttBrokerAddress}\nService needs to be restarted for changes to take effect. Close now?",
         "Restart required",
         MessageBoxButtons.YesNo,
         MessageBoxIcon.Warning,
