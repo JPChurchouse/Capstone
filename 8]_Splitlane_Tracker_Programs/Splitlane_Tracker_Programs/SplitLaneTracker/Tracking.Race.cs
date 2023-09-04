@@ -121,7 +121,7 @@ namespace SplitlaneTracker.Services.Tracking.Race
         }
 
         // Not found - create new kart
-        KartList.Add(new Kart(detection.Colour,"unknown"));
+        KartList.Add(new Kart(detection.Colour, detection.Colour));
         KartList[KartList.Count - 1].Detect(detection);
       }
       catch
