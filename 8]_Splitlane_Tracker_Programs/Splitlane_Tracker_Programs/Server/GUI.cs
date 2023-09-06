@@ -72,7 +72,7 @@ namespace SplitlaneTracker.Server
       }
 
       // Conclude the current race
-      else if (command.Contains("end"))
+      else if (command.Contains("end") || command.Contains("stop"))
       {
         log.log("NewRaceCommand - end");
         Race_Stop();
