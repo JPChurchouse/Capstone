@@ -72,7 +72,7 @@ namespace SplitlaneTracker.Server
       }
 
       // Conclude the current race
-      else if (command.Contains("end"))
+      else if (command.Contains("end") || command.Contains("stop"))
       {
         log.log("NewRaceCommand - end");
         Race_Stop();
@@ -83,6 +83,14 @@ namespace SplitlaneTracker.Server
       {
         log.log("NewRaceCommand - cancel");
         Race_Cancel();
+      }
+
+      // Blank start new race
+      else if (command.Contains("quick"))
+      {
+        log.log("NewRaceCommand - quick");
+        Race_New();
+        Race_Start();
       }
 
       // Unrecongnised
@@ -191,7 +199,7 @@ namespace SplitlaneTracker.Server
     private void SettingsWindow_Closing(object? sender, CancelEventArgs e)
     {
       var res = MessageBox.Show(
-        "Service needs to be restarted for changes to take effect. Close now?",
+        $"Broker IP: {Properties.Settings.Default.MqttBrokerAddress}\nService needs to be restarted for changes to take effect. Close now?",
         "Restart required",
         MessageBoxButtons.YesNo,
         MessageBoxIcon.Warning,
@@ -201,6 +209,21 @@ namespace SplitlaneTracker.Server
       {
         _ = Terminate();
       }
+    }
+
+    private void btn_startstop_Click(object sender, EventArgs e)
+    {
+      btn_startstop.Enabled = false;
+      if (Race_status == Status.Running)
+      {
+        Race_Stop();
+      }
+      else
+      {
+        Race_New();
+        Race_Start();
+      }
+      btn_startstop.Enabled = true;
     }
   }
 }

@@ -17,19 +17,27 @@ namespace SplitlaneTracker.Server
   {
     private Race myRace = new Race();
 
-    public void Race_New(string json)
+    public void Race_New(string json = "")
     {
       log.log("Initalising new Race");
       log.log(json);
 
-      if (myRace.InitFromJson(json))
+      bool ready = false;
+
+      if (json == "" || json == null)
       {
-        Race_SetStatus(Status.Ready);
+        myRace.InitBlank(
+          Properties.Settings.Default.Laps_Left,
+          Properties.Settings.Default.Laps_Right,
+          Properties.Settings.Default.Laps_Total);
+        ready = true;
       }
       else
       {
-        Race_SetStatus(Status.Online);
+        ready = myRace.InitFromJson(json);
       }
+
+      Race_SetStatus(ready ? Status.Ready : Status.Online);
     }
 
     public void Race_Start()
@@ -44,6 +52,9 @@ namespace SplitlaneTracker.Server
     public void Race_Stop()
     {
       _ = Mqtt_Send(new Services.Mqtt.Packet("detect/cmd", "stop"));
+
+      if (Race_status != Status.Running) return;
+
       Race_SetStatus(Status.Complete);
 
       string dir = Environment.CurrentDirectory + "\\output";

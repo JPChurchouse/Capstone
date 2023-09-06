@@ -33,7 +33,7 @@ namespace SplitlaneTracker.Server
       log,
       "SplitlaneTrackerServer",
       Properties.Settings.Default.MqttBrokerAddress,
-      "status/server",
+      "server/status",
       "Offline");
 
     private Task Mqtt_OnDisconnect()
@@ -53,42 +53,42 @@ namespace SplitlaneTracker.Server
       log.log($"New MQTT message received: {topic},{message}");
 
       // Server command
-      if (topic.Contains("command/server"))
+      if (topic.Contains("server/cmd"))
       {
-        log.log("command/server");
+        log.log("server/cmd");
         NewServerCommand(message);
       }
 
       // New race config
       else if (topic.Contains("race/config"))
       {
-        log.log("raceinfo");
+        log.log("race/config");
         Race_New(message);
       }
 
       // Race command
       else if (topic.Contains("race/cmd"))
       {
-        log.log("command/race");
+        log.log("race/cmd");
         NewRaceCommand(message);
       }
 
       // Detection
       else if (topic.Contains("detect/status"))
       {
-        log.log("status/detection");
+        log.log("detect/status");
         Detection_status = message.Contains("Online") ? Status.Online : Status.Offline;
         UpdateDisplay();
       }
 
       // Throw out other commands
-      else if (topic.Contains("command")) { }
+      else if (topic.Contains("cmd")) { }
       else if (topic.Contains("status")) { }
 
       // Detection
       else if (topic.Contains("race/detect"))
       {
-        log.log("detect");
+        log.log("race/detect");
         Race_Detection(message);
       }
 

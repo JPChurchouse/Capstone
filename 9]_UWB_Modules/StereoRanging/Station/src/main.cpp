@@ -3,144 +3,160 @@
 
 */
 
-// INCLUDES AND DEFINES
+// INCLUDES //
 #include <Arduino.h>
 #include <SPI.h>
-#include "DW1000Ranging.h"     //https://github.com/thotro/arduino-dw1000
+#include "DW1000Ranging.h" //https://github.com/thotro/arduino-dw1000
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-#define ANCHOR_ADD "00:00:00:00:00:00:00:00"
 
-#define SPI_SCK 18
-#define SPI_MISO 19
-#define SPI_MOSI 23
-#define DW_CS 4
+// SETTINGS //
 
-#define topic_rawdata "detect/info"
-#define topic_timestamp "detect/ts"
-#define topic_status "detect/status/one"
-#define topic_cmd "detect/cmd/one"
-#define station_name "left"
+// Station
+#define STATION_NAME        "right"
+#define MODULE_MAC          "00:00:00:00:00:00:00:02"
+#define ANTENNA_DELAY       16438
 
-// WIFI AND MQTT INIT  
-const char* ssid = "Lodge Wireless Internet";
-const char* password = "JulietCharlieHotelQuebec";
-const char* mqtt_server = "192.168.1.20";
-char msg[64];
+// Network
+#define WIFI_SSID           "Lodge Wireless Internet"
+#define WIFI_PASS           "JulietCharlieHotelQuebec"
+#define MQTT_IP             "192.168.1.20"
 
-WiFiClient espClient;
-PubSubClient client(espClient);
-
-void wifi_setup();
-void mqtt_setup();
-void mqtt_message(char*, byte *, unsigned int);
-void mqtt_reconnect() ;
-void mqtt_subscribe();
+// Readings
+#define READS_MAX           6.0
+#define READS_PERIOD        100
+#define READS_BUFFSIZE       10
 
 
-// UWB INIT
-const uint8_t PIN_RST = 27; // reset pin
-const uint8_t PIN_IRQ = 34; // irq pin
-const uint8_t PIN_SS = 4;   // spi select pin
-const uint16_t uwb_adel = 16438;
+// GLOBAL CONSTS //
 
-void uwb_setup();
-void uwb_newRange();
-void uwb_newBlink(DW1000Device*);
-void uwb_inactiveDevice(DW1000Device*);
+// MQTT topics
+#define TOPIC_DATA          "detect/info"
+#define TOPIC_TIMESTAMP     "detect/ts"
+#define TOPIC_STATUS        "detect/status"
+#define TOPIC_COMMAND       "detect/cmd"
+
+#define TOPIC_STATUS_LOCAL   TOPIC_STATUS  "/" STATION_NAME
+#define TOPIC_COMMAND_LOCAL  TOPIC_COMMAND "/" STATION_NAME
+
+// SPI pins
+#define SPI_SCK   18
+#define SPI_MISO  19
+#define SPI_MOSI  23
+#define SPI_CS_DW  4
+
+// DW100 pins
+#define PIN_RST   27 // reset pin
+#define PIN_IRQ   34 // irq pin
+#define PIN_SS     4 // spi select pin
 
 
-// TIMEKEEPING
+// GLOBAL VARIABLES & OBJECTS
+
+// Network
+WiFiClient WifiClient;
+PubSubClient MqttClient(WifiClient);
+
+// Readings
+float reads_list_readings [READS_BUFFSIZE];
+uint16_t reads_list_ids [READS_BUFFSIZE];
+
+// Timekeeping
 uint64_t time_offset = 0;
-uint64_t time_get();
-uint64_t time_set(uint64_t);
 
 
-// Detection handling
-const float read_max = 6.0;
-const uint16_t read_period = 100;
-uint64_t read_lastreading = 0;
-String read_packet = "";
-const uint8_t read_buffsize = 10;
-float read_list_readings [read_buffsize];
-uint16_t read_list_ids [read_buffsize];
+// FUNCTION PROTOTYPES
 
-void read_clear();
-void read_addreading(uint16_t, float);
-void read_sendpacket();
+// Network
+void Wifi_Setup();
+void Mqtt_Setup();
+void Mqtt_Reconnect();
+void Mqtt_Subscribe();
+void cb_Mqtt_Message(char*, byte *, unsigned int); // cb == callback, don't call this one directly
+
+// UWB
+void Uwb_Setup();
+void Uwb_NewRange();
+
+// Readings
+void Reads_Clear();
+void Reads_AddReading(uint16_t, float);
+void Reads_SendPacket();
+
+// Timekeeping
+uint64_t Time_Get();
+uint64_t Time_Set(uint64_t);
 
 
-// SETUP
+// MAIN FUNCTIONS
+
+// Running macros
+void Run_Infrequent(uint64_t);
+int  run_infreq_period = 100;
+bool run_infreq_flag = false;
+
+// Setup
 void setup()
 {
   Serial.begin(115200);
 
-  wifi_setup();
+  Wifi_Setup();
   delay(1000);
 
-  mqtt_setup();
+  Mqtt_Setup();
   delay(1000);
 
-  uwb_setup();
+  Uwb_Setup();
   delay(1000);
 
-  read_clear();
+  Reads_Clear();
 }
 
-void infrequent(uint64_t);
-
-int period = 100;
-bool sent = false;
-// MAIN LOOP
+// Main loop
 void loop()
 {
-  if (WiFi.status() != WL_CONNECTED) 
-  {
-    wifi_setup;
-  }
+  // Reconnect wifi
+  if (WiFi.status() != WL_CONNECTED) Wifi_Setup;
 
-  if (!client.connected())
-  {
-    mqtt_reconnect();
-  } 
+  // Reconnect MQTT
+  if (!MqttClient.connected()) Mqtt_Reconnect();
 
-  client.loop();
+  // Run MQTT and UWB
+  MqttClient.loop();
   DW1000Ranging.loop();
 
-  uint64_t time = time_get();
-  if (time % period == 0)
+  // Run infrequent macro
+  uint64_t now = Time_Get();
+  if (now % run_infreq_period == 0)
   {
-    if (!sent) infrequent(time);
-    sent = true;
+    if (!run_infreq_flag) Run_Infrequent(now);
+    run_infreq_flag = true;
   }
-  else sent = false;
-}
-void infrequent(uint64_t now)
-{
-  if (now % (period * 100) == 0)
-  {
-    for (int i = 0; i < 6; i++)
-    {
-      read_list_ids [i] = i;
-      read_list_readings [i] = (i * i - i) + 2.0/i;
-    }
-  }
-  Serial.println(now);
-  read_sendpacket();
+  else run_infreq_flag = false;
 }
 
+// Infrequent macro
+void Run_Infrequent(uint64_t now)
+{
+  Serial.println(now);
+  Reads_SendPacket();
+}
+
+
+// NETWORK FUNCTIONS
+
 // Setup Wifi
-void wifi_setup() 
+void Wifi_Setup()
 {
   delay(10);
   Serial.println();
   Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.println(WIFI_SSID);
 
-  WiFi.begin(ssid, password);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
 
-  while (WiFi.status() != WL_CONNECTED) 
+  while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");
@@ -152,35 +168,34 @@ void wifi_setup()
   Serial.println(WiFi.localIP());
 }
 
-
 // Setup MQTT
-void mqtt_setup()
+void Mqtt_Setup()
 {
-  client.setServer(mqtt_server, 1883);
-  client.setCallback(mqtt_message);
-  client.publish(topic_status, "online");
+  MqttClient.setServer(MQTT_IP, 1883);
+  MqttClient.setCallback(cb_Mqtt_Message);
+  MqttClient.publish(TOPIC_STATUS_LOCAL, "Online");
 }
 
 // Subscribe to MQTT topics
-void mqtt_subscribe()
+void Mqtt_Subscribe()
 {
-  client.subscribe(topic_timestamp);
-  client.subscribe(topic_cmd);
+  MqttClient.subscribe(TOPIC_TIMESTAMP);
+  MqttClient.subscribe(TOPIC_COMMAND_LOCAL);
 }
 
 // New MQTT message arrived
-void mqtt_message(char* topic, byte* msg, unsigned int length) 
+void cb_Mqtt_Message(char* topic, byte* msg, unsigned int length)
 {
   Serial.print("Message arrived on topic: ");
   Serial.print(topic);
   Serial.print(". Message: ");
   String message;
   uint64_t count = 0;
-  
+
   // Process message
-  for (int i = 0; i < length; i++) 
+  for (int i = 0; i < length; i++)
   {
-    char c = (char) msg[i];
+    char c = (char)msg[i];
     message += c;
 
     uint16_t val = uint16_t(c - '0');
@@ -190,146 +205,131 @@ void mqtt_message(char* topic, byte* msg, unsigned int length)
 
   Serial.println(message);
 
-  if (String(topic) == topic_cmd) 
+  if (String(topic) == TOPIC_COMMAND_LOCAL)
   {
+    if (message.indexOf("ping") >= 0)
+    {
+      MqttClient.publish(TOPIC_STATUS_LOCAL,"Ping "+Time_Get());
+    }
   }
 
-  if (String(topic) == topic_timestamp) 
+  if (String(topic) == TOPIC_TIMESTAMP)
   {
     Serial.println(count);
-    time_set(count);
+    Time_Set(count);
   }
 }
 
 // Reconnect to MQTT
-void mqtt_reconnect() 
+void Mqtt_Reconnect()
 {
   // Loop until we're reconnected
-  while (!client.connected()) 
+  while (!MqttClient.connected())
   {
     Serial.print("Attempting MQTT connection...");
 
     // Attempt to connect
-    if (client.connect("Dock_Client")) 
+    if (MqttClient.connect(STATION_NAME))
     {
       Serial.println("connected");
-      // Subscribe
-      mqtt_subscribe();
+      Mqtt_Subscribe();
     } 
 
-    else 
+    else
     {
       Serial.print("failed, rc=");
-      Serial.print(client.state());
+      Serial.print(MqttClient.state());
       Serial.println(" try again in 5 seconds");
       // Wait 5 seconds before retrying
       delay(5000);
     }
   }
 }
- 
+
+
+// UWB FUNCTIONS
 
 // UWB Setup
-void uwb_setup()
+void Uwb_Setup()
 {
   //init the configuration
   SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
   DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
   //define the sketch as anchor. It will be great to dynamically change the type of module
-  DW1000Ranging.attachNewRange(uwb_newRange);
-  DW1000Ranging.attachBlinkDevice(uwb_newBlink);
-  DW1000Ranging.attachInactiveDevice(uwb_inactiveDevice);
+  DW1000Ranging.attachNewRange(Uwb_NewRange);
+  //DW1000Ranging.attachBlinkDevice(uwb_newBlink);
+  //DW1000Ranging.attachInactiveDevice(uwb_inactiveDevice);
   //Enable the filter to smooth the distance
   //DW1000Ranging.useRangeFilter(true);
 
-  DW1000.setAntennaDelay(uwb_adel);
+  DW1000.setAntennaDelay(ANTENNA_DELAY);
 
-  DW1000Ranging.startAsAnchor(ANCHOR_ADD, DW1000.MODE_SHORTDATA_FAST_ACCURACY,false);
+  DW1000Ranging.startAsAnchor(MODULE_MAC, DW1000.MODE_LONGDATA_RANGE_LOWPOWER, false);
 }
 
 // Detect UWB
-void uwb_newRange()
+void Uwb_NewRange()
 {
-    uint16_t who = DW1000Ranging.getDistantDevice()->getShortAddress();
-    float dist = DW1000Ranging.getDistantDevice()->getRange();
+  uint16_t who = DW1000Ranging.getDistantDevice()->getShortAddress();
+  float what = DW1000Ranging.getDistantDevice()->getRange();
 
-    Serial.println(who,HEX);
-    if (dist > read_max) return;
-    
-    read_addreading(who,dist);
+  Serial.print("New reading: ");
+  Serial.print(who, HEX);
+  Serial.print(" ");
+  Serial.print(what);
 
+  if (what < 0.0)
+  {
+    Serial.println("Rejected reading");
     return;
+  }
 
-    char message[32];
-    sprintf(message, "{\"ID\":\"%X\",\"Dist\":%f}",who,dist);
-
-    //client.publish("detect", message);
-    
-
-    return;
-    Serial.print("from: ");
-    Serial.print(DW1000Ranging.getDistantDevice()->getShortAddress(), HEX);
-    Serial.print("\t Range: ");
-    Serial.print(DW1000Ranging.getDistantDevice()->getRange());
-    Serial.print(" m");
-    Serial.print("\t RX power: ");
-    Serial.print(DW1000Ranging.getDistantDevice()->getRXPower());
-    Serial.println(" dBm");
-}
- 
-// Not sure
-void uwb_newBlink(DW1000Device *device)
-{
-    return;
-    Serial.print("blink; 1 device added ! -> ");
-    Serial.print(" short:");
-    Serial.println(device->getShortAddress(), HEX);
-}
- 
-// UWB out of range
-void uwb_inactiveDevice(DW1000Device *device)
-{
-    return;
-    Serial.print("delete inactive device: ");
-    Serial.println(device->getShortAddress(), HEX);
+  if (what < READS_MAX) Reads_AddReading(who, what);
 }
 
 
-// Time
-uint64_t time_get()
+// TIME FUNCTIONS
+
+uint64_t Time_Get()
 {
   return time_offset + millis();
 }
-uint64_t time_set(uint64_t value)
+
+uint64_t Time_Set(uint64_t value)
 {
   time_offset = value - millis();
-  return time_get();
+  return Time_Get();
 }
 
-void read_clear()
+
+// READINGS FUNCTIONS
+
+// Clear the readings buffers
+void Reads_Clear()
 {
-  for (int i = 0; i < read_buffsize; i++)
+  for (int i = 0; i < READS_BUFFSIZE; i++)
   {
-    read_list_ids [i] = 0;
-    read_list_readings [i] = 0;
+    reads_list_ids [i] = 0;
+    reads_list_readings [i] = 0;
   }
 }
 
-void read_addreading(uint16_t who, float dist)
+// Add a reading
+void Reads_AddReading(uint16_t who, float dist)
 {
   // Note a free slot
   int free = -1;
 
   // Iterate over each item in the array
-  for (int i = 0; i < read_buffsize; i++)
+  for (int i = 0; i < READS_BUFFSIZE; i++)
   {
     // ID at index
-    uint16_t id = read_list_ids [i];
+    uint16_t id = reads_list_ids [i];
 
     // Overwrite
     if (id == who)
     {
-      read_list_readings [i] = dist;
+      reads_list_readings [i] = dist;
       return;
     }
 
@@ -341,38 +341,36 @@ void read_addreading(uint16_t who, float dist)
   if (free == -1) return;
 
   // Write values at free index
-  read_list_ids [free] = who;
-  read_list_readings [free] = dist;
-
-  return;
+  reads_list_ids [free] = who;
+  reads_list_readings [free] = dist;
 }
 
-// Generate packet
-void read_sendpacket()
+// Generate and send a packet from current info, clear buffer
+void Reads_SendPacket()
 {
   // Check ther is actually some data
   bool ret = true;
-  for (int i = 0; i < read_buffsize; i++)
+  for (int i = 0; i < READS_BUFFSIZE; i++)
   {
-    if (read_list_ids [i] == 0) continue;
+    if (reads_list_ids [i] == 0) continue;
     ret = false;
     break;
   }
   if (ret) return;
 
   // Init buffer and time val
-  char m[512];
-  uint64_t now = time_get();
+  char m [512];
+  String now = String(Time_Get());
 
   // Packet header
-  sprintf(m, "{\"Station\":\"%s\",\"Time\":%u,\"List\":[", station_name, now);
+  sprintf(m, "{\"Station\":\"%s\",\"Time\":%s,\"List\":[", STATION_NAME, now);
 
   // Bring in the readings
-  for (int i = 0; i < read_buffsize; i++)
+  for (int i = 0; i < READS_BUFFSIZE; i++)
   {
     // Read values
-    uint16_t id = read_list_ids [i];
-    float dist = read_list_readings [i];
+    uint16_t id = reads_list_ids [i];
+    float dist = reads_list_readings [i];
 
     // If not a reading -> continue
     if (id == 0) continue;
@@ -382,13 +380,12 @@ void read_sendpacket()
   }
 
   // End the packet [-1 to overwrite the last comma]
-  sprintf(m + strlen(m) - 1, "]}");
+  sprintf(m + strlen(m)- 1, "]}");
 
   // Send
-  client.publish(topic_rawdata, m);
+  MqttClient.publish(TOPIC_DATA, m);
+  Serial.println(m);
 
   // Clear the arrays
-  read_clear();
-
-  return;
+  Reads_Clear();
 }

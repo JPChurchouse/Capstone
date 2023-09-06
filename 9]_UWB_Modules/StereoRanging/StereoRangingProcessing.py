@@ -36,7 +36,7 @@ invalid         = "null"
 
 # Callback func for when a message is RXD
 def cb_MqttOnReceive(client, userdata, msg) :
-  print("MQTT received:\n"+msg.topic+" - "+str(msg.payload)+"\n")
+  print("Receive: " + msg.topic + " " + str(msg.payload) + "\n")
   if msg.topic == topic_rawinfo :
       DataParseAndProcess(msg.payload.decode('UTF-8'))
   return
@@ -45,9 +45,8 @@ def cb_MqttOnReceive(client, userdata, msg) :
 # Callback func for when client connects
 def cb_MqttOnConnect(client, userdata, flags, rc) :
   print("Connected with result code "+str(rc))
-  client.will_set(topic_status, "Offline", 1, True) # Set will
-  client.subscribe(topic_rawinfo)                   # Sub to detection commands
-  #client.subscribe("#")
+  client.will_set(topic_status, "Offline", 1, True) # Will
+  client.subscribe(topic_rawinfo)
   MqttPublish(topic_status, "Online")
   return
 
@@ -61,6 +60,7 @@ def MqttDisconnect() :
 
 # Func to publish to mqtt
 def MqttPublish(topic, payload, retain = False) :
+  print("Publish: " + topic + " " + payload + "\n")
   client.publish(topic, payload, 1, retain)
   return
 
@@ -68,7 +68,6 @@ def MqttPublish(topic, payload, retain = False) :
 # Update ESP32 UWB timestamps
 def TxTimestamp() :
   now = str(TimeNow())
-  print("Sending timestamp: "+now+"\n")
   client.publish(topic_timestamp, now, 1, False)
   return
 
