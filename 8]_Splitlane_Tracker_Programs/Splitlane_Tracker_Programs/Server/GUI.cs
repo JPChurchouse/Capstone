@@ -210,5 +210,22 @@ namespace SplitlaneTracker.Server
         _ = Terminate();
       }
     }
+
+    private void btn_startstop_Click(object sender, EventArgs e)
+    {
+      btn_startstop.Enabled = false;
+      if (Race_status == Status.Running)
+      {
+        Race_Stop();
+        btn_startstop.Text = "Quick Start";
+      }
+      else
+      {
+        Race_New();
+        Race_Start();
+        btn_startstop.Text = "Stop Current";
+      }
+      btn_startstop.Enabled = true;
+    }
   }
 }

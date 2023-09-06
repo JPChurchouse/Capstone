@@ -29,8 +29,7 @@ namespace SplitlaneTracker.Server
       labl_DetectorStatus.ForeColor = 
         Detection_status==Status.Online ?
         Color.White : Color.Red;
-      
-      labl_ServerStatus.Text = Server_status.ToString();
+
       labl_RaceStatus.Text = Race_status.ToString();
       StatusIcon.Text = Race_status.ToString();
 
