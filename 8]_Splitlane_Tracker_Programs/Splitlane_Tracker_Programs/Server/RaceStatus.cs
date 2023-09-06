@@ -39,6 +39,9 @@ namespace SplitlaneTracker.Server
     private void Race_SetStatus(Status stat)
     {
       Race_Timer_Stop();
+
+      if (stat == Race_status) return; // Already set to this
+
       Race_status = stat;
       log.log($"RaceStatus status = {Race_status}");
 
