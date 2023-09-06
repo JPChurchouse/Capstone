@@ -9,7 +9,7 @@
 #include "DW1000Ranging.h" //https://github.com/thotro/arduino-dw1000
 
 // CHANGE THESE AS REQUIRED
-#define MY_ID "01:00:00:00:00:00:00:00"
+#define MY_ID "03:00:00:00:00:00:00:00"
 #define ANT_DEL 16438
 
 // PINS

@@ -67,8 +67,8 @@ def MqttWait(ms):
 
 
 list_lanes = ["left","right"]
-list_karts = ["1","2"]
-list_lapsinfo = [2,2,6]
+list_karts = ["1","2","3"]
+list_lapsinfo = [4,4,10]
 
 
 

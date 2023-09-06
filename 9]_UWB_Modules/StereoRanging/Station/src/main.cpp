@@ -278,6 +278,12 @@ void Uwb_NewRange()
   Serial.print(" ");
   Serial.print(what);
 
+  if (what < 0.0)
+  {
+    Serial.println("Rejected reading");
+    return;
+  }
+
   if (what < READS_MAX) Reads_AddReading(who, what);
 }
 
