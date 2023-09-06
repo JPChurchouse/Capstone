@@ -52,6 +52,9 @@ namespace SplitlaneTracker.Server
     public void Race_Stop()
     {
       _ = Mqtt_Send(new Services.Mqtt.Packet("detect/cmd", "stop"));
+
+      if (Race_status != Status.Running) return;
+
       Race_SetStatus(Status.Complete);
 
       string dir = Environment.CurrentDirectory + "\\output";

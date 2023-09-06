@@ -27,6 +27,7 @@ namespace SplitlaneTracker.Server
       log.log("RaceInfo timeout");
       Race_Timer_Stop();
       Race_SetStatus(Status.Online);
+      _ = UpdateRemoteDisplays();
     }
 
     private void Race_Timer_Stop()

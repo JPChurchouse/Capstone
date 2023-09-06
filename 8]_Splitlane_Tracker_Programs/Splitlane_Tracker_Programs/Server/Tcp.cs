@@ -15,15 +15,19 @@ namespace SplitlaneTracker.Server
     private static Services.Tcp.TcpServer TcpServer =
       new Services.Tcp.TcpServer(
       Properties.Settings.Default.MqttBrokerAddress,
-      Environment.CurrentDirectory + "\\RaceDisplayPage.html", 
+      Environment.CurrentDirectory + "\\RaceDisplayPage.html",
       log);
 
     private async Task UpdateRemoteDisplays()
     {
       string info = "[{\"Number\": \"Waiting\",\"Left\": \"for\",\"Right\": \"new\",\"Total\": \"race\"}]";
 
-      if (Race_status == Status.Running || Race_status == Status.Ready) 
+      if (Race_status == Status.Running ||
+          Race_status == Status.Ready   ||
+          Race_status == Status.Complete)
+      {
         info = myRace.GetDisplayInfoAsJson();
+      }
 
       log.log(info);
       await Mqtt_Client.Publish("display", info);

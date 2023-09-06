@@ -26,13 +26,15 @@ namespace SplitlaneTracker.Server
 
       // Redo status labels
       labl_DetectorStatus.Text = Detection_status.ToString();
-      labl_DetectorStatus.ForeColor = 
+      labl_DetectorStatus.ForeColor =
         Detection_status==Status.Online ?
         Color.White : Color.Red;
 
       labl_RaceStatus.Text = Race_status.ToString();
       StatusIcon.Text = Race_status.ToString();
 
+      // Start/stop button on UI - "Running" -> "Stop", else "Start"
+      btn_startstop.Text = Race_status == Status.Running ? "Stop" : "Quick Start";
 
       // Race status colour and icon
       Color color;
@@ -94,7 +96,7 @@ namespace SplitlaneTracker.Server
         int len = 200;
         string existing = 
           txtbx_Output.Text.Length > len ?
-          txtbx_Output.Text.Substring(0, len) :
+          txtbx_Output.Text.Substring(0, len):
           txtbx_Output.Text;
 
         txtbx_Output.Text = rstat + existing;
@@ -105,8 +107,8 @@ namespace SplitlaneTracker.Server
       if (detection != null)
       {
         string new_msg = 
-          DateTime.Now.ToString("HH:mm:ss") + " " + 
-          detection.Colour + " " + detection.Lane + 
+          DateTime.Now.ToString("HH:mm:ss") + " " +
+          detection.Colour + " " + detection.Lane +
           "\r\n";
 
         string existing;

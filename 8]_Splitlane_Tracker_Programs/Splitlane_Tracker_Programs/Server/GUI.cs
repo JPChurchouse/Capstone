@@ -217,13 +217,11 @@ namespace SplitlaneTracker.Server
       if (Race_status == Status.Running)
       {
         Race_Stop();
-        btn_startstop.Text = "Quick Start";
       }
       else
       {
         Race_New();
         Race_Start();
-        btn_startstop.Text = "Stop Current";
       }
       btn_startstop.Enabled = true;
     }
