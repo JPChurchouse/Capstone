@@ -33,7 +33,7 @@ namespace SplitlaneTracker.Server
       log,
       "SplitlaneTrackerServer",
       Properties.Settings.Default.MqttBrokerAddress,
-      "status/server",
+      "server/status",
       "Offline");
 
     private Task Mqtt_OnDisconnect()

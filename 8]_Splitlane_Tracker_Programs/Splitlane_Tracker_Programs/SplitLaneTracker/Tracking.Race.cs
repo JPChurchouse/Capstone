@@ -35,6 +35,12 @@ namespace SplitlaneTracker.Services.Tracking.Race
       return true;
     }
 
+    public void InitBlank(int left, int right, int total)
+    {
+      KartList.Clear();
+      RequiredLaps = new int[3] { left, right, total };
+    }
+
     public string GetJson()
     {
       return JsonConvert.SerializeObject(this);

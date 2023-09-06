@@ -40,7 +40,7 @@ namespace SplitlaneTracker.Server
     {
       Race_Timer_Stop();
 
-      if (stat == Race_status) return; // Already set to this
+      if (stat == Race_status) return; // Already set to this status
 
       Race_status = stat;
       log.log($"RaceStatus status = {Race_status}");

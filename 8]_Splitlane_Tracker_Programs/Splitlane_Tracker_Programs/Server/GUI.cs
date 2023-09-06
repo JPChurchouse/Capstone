@@ -85,6 +85,14 @@ namespace SplitlaneTracker.Server
         Race_Cancel();
       }
 
+      // Blank start new race
+      else if (command.Contains("quick"))
+      {
+        log.log("NewRaceCommand - quick");
+        Race_New();
+        Race_Start();
+      }
+
       // Unrecongnised
       else
       {

@@ -5,5 +5,14 @@
     <Setting Name="MqttBrokerAddress" Type="System.String" Scope="User">
       <Value Profile="(Default)">192.168.1.20</Value>
     </Setting>
+    <Setting Name="Laps_Left" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8</Value>
+    </Setting>
+    <Setting Name="Laps_Right" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8</Value>
+    </Setting>
+    <Setting Name="Laps_Total" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
