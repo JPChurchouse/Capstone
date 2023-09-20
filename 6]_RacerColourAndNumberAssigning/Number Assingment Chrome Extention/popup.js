@@ -16,6 +16,7 @@ window.addEventListener('load', function (evt) {
 	});;
 });
 
+
 // Listen to messages from the payload.js script and write to popout.html
 chrome.runtime.onMessage.addListener(function (message){
 	//alert("Click Detected");
@@ -29,7 +30,6 @@ chrome.runtime.onMessage.addListener(function (message){
 			document.getElementById('pagetitle').innerHTML = message.scrapped;
 		}
 	}
-
 });
 
 //Save
@@ -76,7 +76,7 @@ function saveorange(){
 //Start Race
 document.getElementById('start').addEventListener('click',startrace)
 function startrace(){
-	consoleID = document.getElementById("console");
+	consoleID = document.getElementById("consoleID");
 	consoleID.innerHTML = "Race Started!"
 	var racejson = {
 		"KartList" : [],
@@ -126,10 +126,12 @@ function deselectallcolours(){
 
 document.getElementById('cancel').addEventListener('click',cancelrace)
 function cancelrace(){
-	console = document.getElementById("console");
+	console = document.getElementById("consoleID");
 	console.innerHTML = "Race Cancelled!"
 	//send out cancel command
 }
+
+
 
 document.addEventListener('DOMContentLoaded', restore_options);
 function restore_options(){
