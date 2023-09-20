@@ -1,8 +1,7 @@
-# Install the MQTT library using the folloing pip command
+# Install the MQTT library using the following pip command
 #pip install paho-mqtt
 
 # cb_Function   -> callback, dont call directly
-# MqttFunction  -> MQTT function
 
 # Import libraries
 import os
@@ -32,6 +31,9 @@ handle_range    = "Range"
 
 invalid         = "null"
 
+# Log directory
+directory_log = os.path.join(os.getcwd(),"logs")
+if not os.path.exists(directory_log) : os.makedirs(directory_log)
 
 
 # Callback func for when a message is RXD
@@ -127,7 +129,7 @@ def DataCheckDetections() :
   arr = data.CheckForDetections()
 
   if arr == [] : return
-  DebugThat()
+  SaveCurrentData()
 
   # Iterate over each given index (index of kart in the data module)
   for i in arr :
@@ -147,15 +149,25 @@ client.connect(mqtt_address, mqtt_port, 60)
 #client.loop_forever()
 
 
-def DebugThat():
+def SaveCurrentData():
 
-  info = str(data.printout())
+  # Acquire the data from the data handler
+  info = data.printout()
+
+  # Fix ' to "
   info = info.replace("\'","\"")
-  for i in range(10): info = info.replace(str(i)+": {","\""+str(i)+"\": {")
 
-  f = open("debug\\"+str(TimeNow())+".json","w")
-  f.write(info)
-  f.close()
+  # Add quotes to kart IDs
+  for i in range(10) :
+    info = info.replace(str(i)+": {", "\""+str(i)+"\": {")
+
+  # Generate filename
+  name = "race_log_" + str(TimeNow()) + ".json"
+
+  # Write data to file and close it
+  file = open(os.join(directory_log,name), "w")
+  file.write(info)
+  file.close()
 
 
 # Main while-loop

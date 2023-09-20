@@ -1,6 +1,5 @@
 """
 
-
 Terminology:
 kart:   object that holds the data associated to one kart, referred to with it's id
 id:     identifier of the kart - number, colour, driver
@@ -8,11 +7,8 @@ index:  index of the kart of interest in the master database
 time:   timestamp of when an event ocurred in unix ms
 now:    timestamp of the instant the function is running
 
-
 """
 
-import os
-import sys
 import time
 
 master = {}
@@ -240,4 +236,4 @@ def WhichLane(index) :
 
 
 def printout():
-  return master
+  return str(master)
