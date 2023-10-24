@@ -19,14 +19,14 @@
 #define ANTENNA_DELAY       16438
 
 // Network
-#define WIFI_SSID           "Lodge Wireless Internet"
-#define WIFI_PASS           "JulietCharlieHotelQuebec"
+#define WIFI_SSID           "hotspot"
+#define WIFI_PASS           "password"
 #define MQTT_IP             "192.168.1.20"
 
 // Readings
-#define READS_MAX           6.0
+#define READS_MAX           0.5
 #define READS_PERIOD        100
-#define READS_BUFFSIZE       10
+#define READS_BUFFSIZE       04
 
 
 // GLOBAL CONSTS //
