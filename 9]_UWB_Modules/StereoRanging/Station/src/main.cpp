@@ -14,14 +14,14 @@
 // SETTINGS //
 
 // Station
-#define STATION_NAME        "right"
+#define STATION_NAME        "left"
 #define MODULE_MAC          "00:00:00:00:00:00:00:02"
 #define ANTENNA_DELAY       16438
 
 // Network
 #define WIFI_SSID           "hotspot"
 #define WIFI_PASS           "password"
-#define MQTT_IP             "192.168.1.20"
+#define MQTT_IP             "192.168.1.21"
 
 // Readings
 #define READS_MAX           0.5
