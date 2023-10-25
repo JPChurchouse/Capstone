@@ -19,7 +19,7 @@ topic_rawinfo   = "detect/info"
 topic_timestamp = "detect/ts"
 topic_detection = "race/detect"
 
-mqtt_address    = "192.168.1.20"     # MQTT broker address - will be "192.168.1.20" on site
+mqtt_address    = "10.2.244.91"     # MQTT broker address - will be "192.168.1.20" on site
 mqtt_port       = 1883               # Port number for MQTT broker connection
 
 # JSON handles
@@ -165,7 +165,7 @@ def SaveCurrentData():
   name = "race_log_" + str(TimeNow()) + ".json"
 
   # Write data to file and close it
-  file = open(os.join(directory_log,name), "w")
+  file = open(os.path.join(directory_log,name), "w")
   file.write(info)
   file.close()
 
@@ -180,8 +180,8 @@ def main() :
 
   # Iteration value
   timeout = 0
-  delay   = 3000
-  periods = 20
+  delay   = 1000
+  periods = 5
 
   # Main while-loop
   while True :

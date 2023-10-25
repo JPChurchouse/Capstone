@@ -21,10 +21,10 @@
 // Network
 #define WIFI_SSID           "hotspot"
 #define WIFI_PASS           "password"
-#define MQTT_IP             "192.168.1.21"
+#define MQTT_IP             "10.2.244.91"
 
 // Readings
-#define READS_MAX           0.5
+#define READS_MAX           1.0
 #define READS_PERIOD        100
 #define READS_BUFFSIZE       04
 
